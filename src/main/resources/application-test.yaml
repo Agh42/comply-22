@@ -1,0 +1,9 @@
+logging:
+  level:
+    root: INFO
+    io:
+      cstool:
+        comply22: DEBUG
+    spring.data: INFO
+    org.springframework: INFO
+    com.fasterxml.jackson.core: DEBUG
