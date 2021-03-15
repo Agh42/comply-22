@@ -22,19 +22,15 @@ public class TimedEntityService {
     }
 
     public EntityDto createEntity(EntityDto dto) {
-        try {
-            var anchor = TimedEntityAnchor.newInstance(dto.getAnchor().getLabels());
-            var version = anchor.newVersion(
-                    dto.getVersion().getName(),
-                    dto.getVersion().getAbbreviation(),
-                    dto.getVersion().getProperties());
-            anchor = anchorRepository.save(anchor);
-            return new EntityDto(
-                    anchor,
-                    anchor.getVersion(0).orElseThrow());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        var anchor = TimedEntityAnchor.newInstance(dto.getAnchor().getLabels());
+        var version = anchor.newVersion(
+                dto.getVersion().getName(),
+                dto.getVersion().getAbbreviation(),
+                dto.getVersion().getProperties());
+        anchor = anchorRepository.save(anchor);
+        return new EntityDto(
+                anchor,
+                anchor.getVersions().stream().findFirst().orElseThrow());
     }
 
     /**
@@ -51,7 +47,7 @@ public class TimedEntityService {
      * @return
      */
     public EntityDto find(String id, Integer versionNumber) {
-        return anchorRepository.findSpecificVersion(id, versionNumber).orElseThrow();
+        return anchorRepository.findSpecificVersion(id).orElseThrow();
 
     }
 

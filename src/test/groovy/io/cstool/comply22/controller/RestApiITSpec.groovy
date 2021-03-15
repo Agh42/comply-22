@@ -1,33 +1,24 @@
 package io.cstool.comply22.controller
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import groovy.json.JsonSlurper
 import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.entity.EntityDto
 import io.cstool.comply22.entity.TimedEntityAnchor
-import io.cstool.comply22.entity.TimedEntityVersion
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.context.annotation.Profile
-import org.springframework.core.env.Profiles
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.web.WebAppConfiguration
+import spock.lang.Shared
 import spock.lang.Specification
 import wslite.rest.RESTClient
-import wslite.rest.RESTClientException
+
+import java.time.Instant
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-
-
-//@SpringBootTest(webEnvironment = RANDOM_PORT)
-
-//@ContextConfiguration(loader = SpringApplicationContextLoader.class, classes = MyServer.class)
-//@WebAppConfiguration
-//@IntegrationTest
 
 @SpringBootTest(classes = Comply22Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles(["test", "dev", "local"])
@@ -35,6 +26,13 @@ class RestApiITSpec extends Specification {
 
     @Autowired
     TestRestTemplate restTemplate
+
+    @Shared
+    JsonSlurper jsonSlurper
+
+    def setupSpec() {
+        jsonSlurper = new JsonSlurper()
+    }
 
     def "get entities" () {
         when:
@@ -72,27 +70,22 @@ class RestApiITSpec extends Specification {
 
     def "Create a new entity"() {
         when:
+        def beforeCreation = Instant.now()
         def anchor = TimedEntityAnchor.newInstance(["Label1", "Label2"] as Set)
         def version = anchor.newVersion("Name1", "Abbr1", Map.of(
                 "key1", "value1",
                 "key2", "value2"
         ))
         HttpEntity<EntityDto> request = new HttpEntity<>(new EntityDto(anchor, version))
-        def entityDto = restTemplate.postForObject("/api/v1/entities", request, EntityDto)
-
+        def json = restTemplate.postForObject("/api/v1/entities", request, ObjectNode.class)
+        def response = jsonSlurper.parseText(json.toString())
 
         then:
-        entityDto.anchor.id != null
-        entityDto.anchor.labels == ["Label1", "Label2"]
-        entityDto.version.name == "Name1"
-
-//        restTemplate.defaultAcceptHeader = ContentType.JSON
-//        def path = "/"
-//        def params = ["foo":1,"bar":2]
-//        def response = client.post(path: path) {
-//            type ContentType.JSON
-//            json params
-//        }
-//        assert response.json?.data == params
+        response.anchor.id != null
+        response.anchor.labels == ["Label1", "Label2"]
+        response.version.name == "Name1"
+        Instant.parse(response.anchor.versionOf[0].from) < Instant.now()
+        Instant.parse(response.anchor.versionOf[0].from) > beforeCreation
+        response.anchor.versionOf[0].until == null
     }
 }

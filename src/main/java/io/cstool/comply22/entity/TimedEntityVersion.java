@@ -1,15 +1,13 @@
 package io.cstool.comply22.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+import org.springframework.lang.NonNull;
 
 import java.time.Instant;
 import java.util.*;
@@ -23,7 +21,6 @@ public class TimedEntityVersion {
 
     @Id
     @GeneratedValue(UUIDStringGenerator.class)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
 
     String name;
@@ -33,34 +30,22 @@ public class TimedEntityVersion {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String lastModifiedBy;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Integer versionNumber;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Instant from;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Instant until;
-
-    @Version
-    @JsonIgnore
-    private int opLock;
-
     /**
      * Dynamic properties.
      */
-    @JsonIgnore
-    String propsJson;
+    @CompositeProperty
+    Map<String, Object> properties = new HashMap<>();
 
-    @JsonProperty
-    public Map<String, Object> getProperties() throws JsonProcessingException {
-        return objectMapper.readValue(propsJson, Map.class);
+    public static TimedEntityVersion newInstance(String name, String abbreviation,
+                                                 @NonNull Map<String, Object> properties) {
+        Map<String, Object> map = new HashMap<>();
+        map.putAll(properties);
+        return new TimedEntityVersion(null, name, abbreviation, null,
+                map);
     }
 
-    @JsonProperty
-    public void setProperties(Map<String, Object> props) throws JsonProcessingException {
-        propsJson = objectMapper.writeValueAsString(props);
+    public void setProperties(Map<String, Object> properties) {
+        this.properties.clear();
+        this.properties.putAll(properties);
     }
-
-
 }

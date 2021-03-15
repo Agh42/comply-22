@@ -17,14 +17,13 @@ import java.util.UUID;
 public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<TimedEntityAnchor, String> {
 
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE a.id = $id " +
-            "AND v.versionNumber = $number " +
-            "RETURN a,collect(v)")
-    public Optional<EntityDto> findSpecificVersion(String id, Integer number);
+            "WHERE v.id = $versionId " +
+            "RETURN a,v")
+    public Optional<EntityDto> findSpecificVersion(String versionId);
 
     /**
      * Find the last known version of the entity. If the entity has been deleted this
-     * will return the last known version. This version will have its vlidity period set in the past
+     * will return the last known version. This version will have its validity period set in the past
      * and additionally carry the "deleted" flag.
      *
      * @param id
@@ -32,16 +31,16 @@ public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<
      */
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE a.id = $id " +
-            "RETURN a,collect(v) " +
-            "ORDER BY v.versionNumber DESC " +
+            "RETURN a,v " +
+            "ORDER BY v.from DESC " +
             "LIMIT 1 "
     )
     public Optional<EntityDto> findLatestVersion(String id);
 
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE a.id = $id " +
-            "AND v.from < $time < v.until " +
-            "RETURN a,collect(v)")
+            "AND (v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until)) " +
+            "RETURN a,v")
     public Optional<EntityDto> findVersionAt(String id, Instant time);
 
     /**

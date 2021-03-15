@@ -33,6 +33,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	compile 'org.codehaus.groovy:groovy:3.0.7'
+	compile 'org.codehaus.groovy:groovy-json:3.0.7'
 	testCompile platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0")
 	testCompile "org.spockframework:spock-core"
 	testCompile 'com.github.groovy-wslite:groovy-wslite:1.1.3'

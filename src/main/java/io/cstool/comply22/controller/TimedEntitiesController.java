@@ -36,27 +36,24 @@ public class TimedEntitiesController {
 
     @PostMapping
     public EntityDto create(@RequestBody @Valid EntityDto dto) {
-        return entityService.createEntity(dto);
+        var result = entityService.createEntity(dto);
+        return result;
     }
 
     @GetMapping
-    public Slice<EntityDto> findAll(@RequestParam(required = false)
+    public Slice<EntityDto> findAll(@RequestParam(required = false, defaultValue = "100")
                                     @Min(value = 10)
                                     @Max(value = 200)
                                             Integer size,
-                                    @RequestParam(required = false)
+                                    @RequestParam(required = false, defaultValue = "0")
                                     @Min(value = 0)
                                             Integer page,
-                                    @RequestParam(required = false)
+                                    @RequestParam(required = false, defaultValue = "name")
                                     @Size(max = 1024)
                                             String sortBy,
-                                    @RequestParam(required = false)
+                                    @RequestParam(required = false, defaultValue = "asc")
                                     @Pattern(regexp = "[asc|desc|ASC|DESC]")
                                             String sortOrder) {
-        size = requireNonNullElse(size, 100);
-        page = requireNonNullElse(page, 0);
-        sortBy = requireNonNullElse(sortBy, "name");
-        sortOrder = requireNonNullElse(sortOrder, "asc");
 
         if (sortOrder.equalsIgnoreCase("asc"))
             return entityService.find(PageRequest.of(page, size, Sort.by(sortBy).ascending()));
