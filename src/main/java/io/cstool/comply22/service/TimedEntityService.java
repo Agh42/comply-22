@@ -1,6 +1,5 @@
 package io.cstool.comply22.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.cstool.comply22.entity.EntityDto;
 import io.cstool.comply22.entity.TimedEntityAnchor;
 import io.cstool.comply22.repository.TimedEntityAnchorRepository;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class TimedEntityService {
@@ -26,7 +24,7 @@ public class TimedEntityService {
         var version = anchor.newVersion(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
-                dto.getVersion().getProperties());
+                dto.getVersion().getDynamicProperties());
         anchor = anchorRepository.save(anchor);
         return new EntityDto(
                 anchor,

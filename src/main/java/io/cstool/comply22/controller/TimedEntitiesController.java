@@ -11,10 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -74,10 +71,12 @@ public class TimedEntitiesController {
     @GetMapping(value = {"/{id}", "/{id}/{versionNumber}"})
     public EntityDto getVersion(
             @PathVariable
-            @Pattern(regexp = "cpe:2\\.[0-9]:[aho](?::(?:[a-zA-Z0-9!\"#$%&'()*+,\\\\\\-_.\\/;<=>?@\\[\\]^`{|}~]|\\\\:)+){10}$")
+            @NotEmpty
                     String id,
-            @PathVariable(required = false) Integer versionNumber,
-            @RequestParam(value = "timestamp", required = false) Instant timestamp
+            @PathVariable(required = false)
+                    Integer versionNumber,
+            @RequestParam(value = "timestamp", required = false)
+                    Instant timestamp
     ) {
         if (versionNumber != null) {
             // get specific version:

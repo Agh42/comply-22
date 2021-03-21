@@ -14,6 +14,17 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Facilitates bitemporal storage of entity states.
+ *
+ * Actual-time (from/until) is the time when the entity's actual state existed as expressed
+ * in this version.
+ *
+ * Recorded-time is the time at which this particular version was recorded in the system.
+ *
+ * What-if-scenario analysis and similar use-cases are supported by the {@code realityId} field which allows
+ * keeping multiple parallel versions for the same time period.
+ */
 @RelationshipProperties
 @Data
 @AllArgsConstructor
@@ -28,14 +39,27 @@ public class VersionOf {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     TimedEntityVersion entityVersion;
 
+    /**
+     * Actual time when this verison
+     */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant from;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant until;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Instant recorded;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer reality;
 
     public static VersionOf relationShipTo(TimedEntityVersion version) {
-        return new VersionOf(null, version, Instant.now(), null);
+        return new VersionOf(null,
+                version,
+                Instant.now(),
+                null,
+                Instant.now(),
+                0);
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import org.springframework.lang.NonNull;
 
-import java.time.Instant;
 import java.util.*;
 
 @Node("Version")
@@ -34,7 +33,7 @@ public class TimedEntityVersion {
      * Dynamic properties.
      */
     @CompositeProperty
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> dynamicProperties = new HashMap<>();
 
     public static TimedEntityVersion newInstance(String name, String abbreviation,
                                                  @NonNull Map<String, Object> properties) {
@@ -44,8 +43,8 @@ public class TimedEntityVersion {
                 map);
     }
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties.clear();
-        this.properties.putAll(properties);
+    public void setDynamicProperties(Map<String, Object> dynamicProperties) {
+        this.dynamicProperties.clear();
+        this.dynamicProperties.putAll(dynamicProperties);
     }
 }

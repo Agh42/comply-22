@@ -31,6 +31,7 @@ public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<
      */
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE a.id = $id " +
+            "AND r.reality = 0" +
             "RETURN a,v " +
             "ORDER BY v.from DESC " +
             "LIMIT 1 "
