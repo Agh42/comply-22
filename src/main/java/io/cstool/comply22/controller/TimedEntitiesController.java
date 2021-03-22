@@ -60,30 +60,24 @@ public class TimedEntitiesController {
     }
 
     /**
-     * Request one version of an entity. Without additional parameters this will return the latest version. A version
-     * number or a timestamp may be used to request a specific version. If both version number and timestamp are
-     * specified, the number will take precedence and the timestamp will be ignored.
+     * Request one version of an entity. Without additional parameters this will return the latest version.
+     * A timestamp may be used to request a specific version.
      *
      * @param id            The ID for the entity (required)
-     * @param versionNumber A specific version number (optional)
      * @param timestamp     Request the version that was valid during this point in time (optional)
      */
-    @GetMapping(value = {"/{id}", "/{id}/{versionNumber}"})
-    public EntityDto getVersion(
+    @GetMapping(value = {"/{id}"})
+    public TimedEntityAnchor getVersion(
             @PathVariable
             @NotEmpty
                     String id,
-            @PathVariable(required = false)
-                    Integer versionNumber,
             @RequestParam(value = "timestamp", required = false)
                     Instant timestamp
     ) {
-        if (versionNumber != null) {
-            // get specific version:
-            return entityService.find(id, versionNumber);
-        } else if (timestamp != null) {
+        if (timestamp != null) {
             // get point in time:
-            return entityService.find(id, timestamp).orElse(null);
+            //return entityService.find(id, timestamp).orElse(null);
+            return null;
         } else {
             // get latest:
             return entityService.find(id);

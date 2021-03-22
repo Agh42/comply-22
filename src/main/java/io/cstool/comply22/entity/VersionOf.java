@@ -52,7 +52,7 @@ public class VersionOf {
     Instant recorded;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Integer reality;
+    Integer reality = 0;
 
     public static VersionOf relationShipTo(TimedEntityVersion version) {
         return new VersionOf(null,

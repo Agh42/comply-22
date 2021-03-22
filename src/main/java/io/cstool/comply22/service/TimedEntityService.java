@@ -33,20 +33,10 @@ public class TimedEntityService {
 
     /**
      * Find the latest version of an entity.
-     */
-    public EntityDto find(String id) {
-        return anchorRepository.findLatestVersion(id).orElseThrow();
-    }
-
-    /**
-     * Find a specific version of an entity
-     * @param id
-     * @param versionNumber
      * @return
      */
-    public EntityDto find(String id, Integer versionNumber) {
-        return anchorRepository.findSpecificVersion(id).orElseThrow();
-
+    public TimedEntityAnchor find(String id) {
+        return anchorRepository.findLatestVersion(id).orElseThrow();
     }
 
     public Optional<EntityDto> find(String id, Instant timestamp) {
