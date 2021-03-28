@@ -1,7 +1,7 @@
 package io.cstool.comply22.repository;
 
 import io.cstool.comply22.entity.EntityDto;
-import io.cstool.comply22.entity.TimedEntityAnchor;
+import io.cstool.comply22.entity.PerpetualEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -10,7 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<TimedEntityAnchor, String> {
+public interface PerpetualEntityRepository extends PagingAndSortingRepository<PerpetualEntity, Long> {
 
     /**
      * Find the last known version of the entity. If the entity has been deleted this
@@ -21,20 +21,25 @@ public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<
      * @return
      */
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE a.id = $id " +
+            "WHERE id(a) = $id " +
+            //"AND $label IN labels(a)  " +
             "AND r.reality = 0  " +
             "WITH a,v,r " +
             "ORDER BY v.from DESC " +
             "LIMIT 1 " +
             "RETURN a, collect(r), collect(v)"
     )
-    public Optional<TimedEntityAnchor> findLatestVersion(String id);
+    public Optional<PerpetualEntity> findLatestVersion(String label, Long id);
 
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE a.id = $id " +
+            "AND $label IN labels(a)  " +
             "AND (v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until)) " +
-            "RETURN a,v")
-    public Optional<EntityDto> findVersionAt(String id, Instant time);
+            "AND r.reality = 0  " +
+            "WITH a,v,r " +
+            "RETURN a, collect(r), collect(v)"
+    )
+    public Optional<PerpetualEntity> findVersionAt(String label, Long id, Instant time);
 
     /**
      * Find all entities for the present time. Deleted entities will not be included in
@@ -45,11 +50,12 @@ public interface TimedEntityAnchorRepository extends PagingAndSortingRepository<
      */
     @Query(value="MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE v.until IS null " +
+            "AND $label IN labels(a)  " +
             "RETURN a,collect(v) " +
             "ORDER BY v.from ASC " +
             "SKIP $skip LIMIT $limit"
     )
-    Slice<EntityDto> findAllCurrent(Pageable pageable);
+    Slice<EntityDto> findAllCurrent(String label, Pageable pageable);
 
     // all versions for one id
 //    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +

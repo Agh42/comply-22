@@ -1,22 +1,18 @@
 package io.cstool.comply22.controller;
 
 import io.cstool.comply22.entity.EntityDto;
-import io.cstool.comply22.entity.TimedEntityAnchor;
-import io.cstool.comply22.service.TimedEntityService;
-import org.springframework.data.domain.Page;
+import io.cstool.comply22.entity.PerpetualEntity;
+import io.cstool.comply22.service.PerpetualEntityService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
-
-import static java.util.Objects.requireNonNullElse;
 
 @CrossOrigin(origins = {"http://cstool.io", "http://comply-22.cstool.io", "https://comply-22.cstool.io",
         "http://localhost:3000"})
@@ -25,20 +21,22 @@ import static java.util.Objects.requireNonNullElse;
 @RequestMapping("/api/v1/entities")
 public class TimedEntitiesController {
 
-    TimedEntityService entityService;
+    PerpetualEntityService entityService;
 
-    public TimedEntitiesController(TimedEntityService service) {
+    public TimedEntitiesController(PerpetualEntityService service) {
         entityService = service;
     }
 
-    @PostMapping
-    public EntityDto create(@RequestBody @Valid EntityDto dto) {
-        var result = entityService.createEntity(dto);
+    @PostMapping("/{label}")
+    public EntityDto create(@PathVariable @NotEmpty String label,
+                            @RequestBody @Valid EntityDto dto) {
+        var result = entityService.createEntity(capitalize(label), dto);
         return result;
     }
 
-    @GetMapping
-    public Slice<EntityDto> findAll(@RequestParam(required = false, defaultValue = "100")
+    @GetMapping("/{label}")
+    public Slice<EntityDto> findAll(@PathVariable @NotEmpty String label,
+                                    @RequestParam(required = false, defaultValue = "100")
                                     @Min(value = 10)
                                     @Max(value = 200)
                                             Integer size,
@@ -53,9 +51,9 @@ public class TimedEntitiesController {
                                             String sortOrder) {
 
         if (sortOrder.equalsIgnoreCase("asc"))
-            return entityService.find(PageRequest.of(page, size, Sort.by(sortBy).ascending()));
+            return entityService.find(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
 
-        return entityService.find(PageRequest.of(page, size, Sort.by(sortBy).descending()));
+        return entityService.find(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
 
     }
 
@@ -66,21 +64,23 @@ public class TimedEntitiesController {
      * @param id            The ID for the entity (required)
      * @param timestamp     Request the version that was valid during this point in time (optional)
      */
-    @GetMapping(value = {"/{id}"})
-    public TimedEntityAnchor getVersion(
+    @GetMapping(value = {"/{label}/{id}"})
+    public PerpetualEntity getVersion(
             @PathVariable
             @NotEmpty
-                    String id,
+                    String label,
+            @PathVariable
+            @NotNull
+                    Long id,
             @RequestParam(value = "timestamp", required = false)
                     Instant timestamp
     ) {
         if (timestamp != null) {
             // get point in time:
-            //return entityService.find(id, timestamp).orElse(null);
-            return null;
+            return entityService.find(capitalize(label), id, timestamp).orElse(null);
         } else {
             // get latest:
-            return entityService.find(id);
+            return entityService.find(capitalize(label), id);
         }
     }
 
@@ -89,5 +89,7 @@ public class TimedEntitiesController {
 //    @PutMapping("/{id}")
 //    public void update(@RequestBody @Valid TimedEntityVersion)
 
-
+    private String capitalize(String label) {
+        return StringUtils.capitalize(label.toLowerCase());
+    }
 }

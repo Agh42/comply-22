@@ -5,26 +5,33 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singleton;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
 @Node("Entity")
 @Data
-@AllArgsConstructor
-public class TimedEntityAnchor {
+@NoArgsConstructor
+public class PerpetualEntity {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
+    @GeneratedValue
     @JsonProperty
-    private String id;
+    private Long id;
 
     @DynamicLabels
-    private Set<String> labels;
+    public Set<String> customLabels = new HashSet<>();
+
+    public void setCustomLabel(String label) {
+        customLabels.clear();
+        customLabels.add(label);
+    }
 
     // dynamic relationships:
     @Relationship
@@ -35,20 +42,19 @@ public class TimedEntityAnchor {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<VersionOf> versionOf = new HashSet<>();
 
-    public static TimedEntityAnchor newInstance(Set<String> labels) {
-        return new TimedEntityAnchor(null,
-                labels,
-                new HashMap<>(),
-                new HashSet<>());
+    public static PerpetualEntity newInstance(String label) {
+        var entity = new PerpetualEntity();
+        entity.setCustomLabel(label);
+        return entity;
     }
 
-    public TimedEntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
-        var version= TimedEntityVersion.newInstance(name, abbreviation, properties);
+    public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
+        var version= EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
         return version;
     }
 
-    public Optional<TimedEntityVersion> getVersion(String id) {
+    public Optional<EntityVersion> getVersion(Long id) {
         return versionOf.stream()
                 .map(VersionOf::getEntityVersion)
                 .filter(ev -> ev.getId().equals(id))
@@ -56,7 +62,7 @@ public class TimedEntityAnchor {
     }
 
     @JsonIgnore
-    public Set<TimedEntityVersion> getVersions() {
+    public Set<EntityVersion> getVersions() {
         return versionOf.stream()
                 .map(VersionOf::getEntityVersion)
                 .collect(Collectors.toSet());

@@ -3,16 +3,12 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Value;
-import lombok.With;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Facilitates bitemporal storage of entity states.
@@ -37,7 +33,7 @@ public class VersionOf {
 
     @TargetNode
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    TimedEntityVersion entityVersion;
+    EntityVersion entityVersion;
 
     /**
      * Actual time when this verison
@@ -54,7 +50,7 @@ public class VersionOf {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer reality = 0;
 
-    public static VersionOf relationShipTo(TimedEntityVersion version) {
+    public static VersionOf relationShipTo(EntityVersion version) {
         return new VersionOf(null,
                 version,
                 Instant.now(),

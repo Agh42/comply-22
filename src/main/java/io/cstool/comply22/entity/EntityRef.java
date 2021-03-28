@@ -4,9 +4,9 @@ import lombok.Value;
 
 @Value
 public class EntityRef {
-    String id;
+    Long id;
 
-    public static EntityRef of(TimedEntityAnchor targetNode) {
+    public static EntityRef of(PerpetualEntity targetNode) {
         return new EntityRef(targetNode.getId());
     }
 }

@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.cstool.comply22.adapter.DynPropsSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,13 +24,13 @@ import java.util.Map;
 @Node("Version")
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-public class TimedEntityVersion {
+public class EntityVersion {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
-    private String id;
+    @GeneratedValue()
+    private Long id;
 
     String name;
     String abbreviation;
@@ -75,11 +73,11 @@ public class TimedEntityVersion {
         dynamicProperties.putAll(props);
     }
 
-    public static TimedEntityVersion newInstance(String name, String abbreviation,
-                                                 @NonNull Map<String, Object> properties) {
+    public static EntityVersion newInstance(String name, String abbreviation,
+                                            @NonNull Map<String, Object> properties) {
         Map<String, Object> map = new HashMap<>();
         map.putAll(properties);
-        return new TimedEntityVersion(null, name, abbreviation, null,
+        return new EntityVersion(null, name, abbreviation, null,
                 map);
     }
 }

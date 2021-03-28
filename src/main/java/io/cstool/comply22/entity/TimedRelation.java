@@ -4,17 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Value;
-import lombok.With;
 import org.springframework.data.neo4j.core.schema.*;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
-import org.springframework.hateoas.Link;
-import org.springframework.stereotype.Indexed;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @RelationshipProperties
 @Data
@@ -28,7 +20,7 @@ public class TimedRelation {
 
     @TargetNode
     @JsonIgnore
-    private TimedEntityAnchor targetNode;
+    private PerpetualEntity targetNode;
 
     private EntityRef target;
 
