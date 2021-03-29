@@ -51,9 +51,9 @@ public class TimedEntitiesController {
                                             String sortOrder) {
 
         if (sortOrder.equalsIgnoreCase("asc"))
-            return entityService.find(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
+            return entityService.findHistory(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
 
-        return entityService.find(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
+        return entityService.findHistory(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
 
     }
 

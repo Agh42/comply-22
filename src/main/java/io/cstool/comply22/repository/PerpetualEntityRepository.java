@@ -8,9 +8,13 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public interface PerpetualEntityRepository extends PagingAndSortingRepository<PerpetualEntity, Long> {
+public interface PerpetualEntityRepository extends PagingAndSortingRepository<PerpetualEntity, Long>,
+    NonDomainResults {
+
 
     /**
      * Find the last known version of the entity. If the entity has been deleted this
@@ -57,7 +61,7 @@ public interface PerpetualEntityRepository extends PagingAndSortingRepository<Pe
     )
     Slice<EntityDto> findAllCurrent(String label, Pageable pageable);
 
-    // all versions for one id
+// all versions for one id
 //    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
 //            "WHERE a.id = $id " +
 //            "RETURN a,collect(v) " +

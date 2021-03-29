@@ -20,6 +20,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @NoArgsConstructor
 public class PerpetualEntity {
 
+    private static final String LABEL = "Entity";
     @Id
     @GeneratedValue
     @JsonProperty
@@ -31,6 +32,12 @@ public class PerpetualEntity {
     public void setCustomLabel(String label) {
         customLabels.clear();
         customLabels.add(label);
+    }
+
+    public void setCustomLabels(Set<String> customLabels) {
+        this.customLabels = customLabels.stream()
+                .filter(s -> !s.equals(PerpetualEntity.LABEL))
+                .collect(Collectors.toSet());
     }
 
     // dynamic relationships:

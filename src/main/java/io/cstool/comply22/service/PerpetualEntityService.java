@@ -9,8 +9,10 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class PerpetualEntityService {
@@ -27,11 +29,11 @@ public class PerpetualEntityService {
 
     PerpetualEntityRepository entityRepository;
 
-    //Neo4jTemplate template;
+    Neo4jTemplate template;
 
     public PerpetualEntityService(PerpetualEntityRepository entityRepository, Neo4jTemplate template) {
         this.entityRepository = entityRepository;
-        //this.template = template;
+        this.template = template;
     }
 
     public EntityDto createEntity(String label, EntityDto dto) {
@@ -56,12 +58,8 @@ public class PerpetualEntityService {
         Map<String,Object> params = Map.of("customlabel", label,
                 "id", id);
         // FIXME custom labels not filled:
-        //var labels = entityRepository.findById(id).orElseThrow().getCustomLabels();
         var entity = entityRepository.findLatestVersion(label, id).orElseThrow();
-        //var entity = entityRepository.findById(id).orElseThrow();
-        //var entity = template.findOne(QUERY, params, PerpetualEntity.class);
-        //var entity = template.findById(id, PerpetualEntity.class);
-        //entity.setCustomLabels(labels);
+        entity.setCustomLabels(Set.copyOf(entityRepository.findLabelsForNode(id)));
         return entity;
     }
 
@@ -69,7 +67,7 @@ public class PerpetualEntityService {
         return entityRepository.findVersionAt(label, id, timestamp);
     }
 
-    public Slice<EntityDto> find(String label, Pageable pageable) {
+    public Slice<EntityDto> findHistory(String label, Pageable pageable) {
         return entityRepository.findAllCurrent(label, pageable);
     }
 }

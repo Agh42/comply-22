@@ -86,7 +86,7 @@ class EntityITSpec extends Specification {
 
         then:
         response.id != null
-        //response.customLabels == ["Control"]
+        response.customLabels == ["Control"]
         response.versionOf[0].entityVersion.name == "Name1"
         response.versionOf[0].entityVersion.dynamicProperties.keyString == "value1"
         response.versionOf[0].entityVersion.dynamicProperties.keyDate == testDate
