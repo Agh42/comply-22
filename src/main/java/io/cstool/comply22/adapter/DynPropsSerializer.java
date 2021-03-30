@@ -1,33 +1,30 @@
 package io.cstool.comply22.adapter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import lombok.SneakyThrows;
+import org.neo4j.driver.internal.value.FloatValue;
 import org.neo4j.driver.internal.value.IntegerValue;
+import org.neo4j.driver.internal.value.ValueAdapter;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-public class DynPropsSerializer extends JsonSerializer<Map<String, Object>> {
+public class DynPropsSerializer {
 
-    @Override
-    public void serialize(Map<String,Object> map, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        map.forEach((key, value) -> {
-            if (value instanceof IntegerValue)
-                    writeNumber(gen, (IntegerValue) value);
-            else {
-                try {
-                    gen.writeString(value.toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+    /*
+     * We need to provide mappers from certain SDN types to basic types
+     * or Jackson will trip on them during serialization.
+     */
+    public Map<String, Object> serialize(Map<String, Object> dynamicProperties) {
+        Map<String, Object> result = new HashMap<String, Object>(dynamicProperties.size());
+        dynamicProperties.forEach((k, v) -> {
+            if (v instanceof IntegerValue)
+                result.put(k, ((IntegerValue) v).asInt());
+            else if (v instanceof FloatValue)
+                result.put(k, ((FloatValue) v).asDouble());
+            else if (v instanceof ValueAdapter)
+                result.put(k, ((ValueAdapter) v).asString());
+            else
+                result.put(k, v);
         });
-    }
-
-    @SneakyThrows
-    private void writeNumber(JsonGenerator gen, IntegerValue value){
-        gen.writeNumber(value.asInt());
+        return result;
     }
 }

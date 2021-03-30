@@ -7,17 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.singleton;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
 @Node("Entity")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PerpetualEntity {
 
     private static final String LABEL = "Entity";

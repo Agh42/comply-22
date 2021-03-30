@@ -34,49 +34,92 @@ class EntityITSpec extends Specification {
         jsonSlurper = new JsonSlurper()
     }
 
+    def setup() {
+        restTemplate.delete("/api/v1/entities/control")
+    }
+
     def "get a page of entities" () {
-        when:
-        def json = restTemplate.getForObject("/api/v1/entities", JsonNode)
-
-        then:
-        json != null
-        json.content.isEmpty()
-
-    }
-
-    def "Get specific version"() {
-
-    }
-
-    def "Get version at point in time"() {
         given:
-        def beforeCreation = Instant.now()
-        def entity = newEntity()
-        String id = entity.entity.id
-        def beforeChange = Instant.now()
-        // TODO update, creating new version
-        def afterChange = Instant.now()
+        37.times {
+            newEntity("Control", "Name"+it)
+        }
 
-        when: "get the last still valid version as of now"
-        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + Instant.now().toString(),
-                ObjectNode.class)
+        when:
+        def json = restTemplate.getForObject("/api/v1/entities/control", JsonNode)
         def response = jsonSlurper.parseText(json.toString())
 
-        then: "the version is retrieved"
-        response.entity.id != null
-        response.entity.labels == ["Label1", "Label2"]
+        then:
+        response != null
+        response.content.size() == 20
+        response.number == 0
+        response.size == 20
+        response.numberOfElements == 20
+        response.first == true
+        response.last == false
+        response.pageable.paged == true
+        response.sort.sorted == true
 
-        response.version.name == "Name1"
-        response.version.dynamicProperties.keyString == "value1"
-        response.version.dynamicProperties.keyDate == testDate
-        response.version.dynamicProperties.keyInt == 42
-        response.version.dynamicProperties.keyDouble == 4.2
+        when: "get second page"
+        json = restTemplate.getForObject("/api/v1/entities/control?page=1", JsonNode)
+        response = jsonSlurper.parseText(json.toString())
+
+        then:
+        response != null
+        response.content.size() == 17
+        response.number == 1
+        response.size == 20
+        response.numberOfElements == 17
+        response.first == false
+        response.last == true
+        response.pageable.paged == true
+        response.sort.sorted == true
+        response.empty == false
+
+        when: "get nonexistent third page"
+        json = restTemplate.getForObject("/api/v1/entities/control?page=2", JsonNode)
+        response = jsonSlurper.parseText(json.toString())
+
+        then:
+        response.content.size() == 0
+        response.pageable.offset == 40
+        response.first == false
+        response.last == true
+        response.empty == true
     }
+
+//    def "Get specific version"() {
+//
+//    }
+
+//    def "Get version at point in time"() {
+//        given:
+//        def beforeCreation = Instant.now()
+//        def entity = newEntity()
+//        String id = entity.entity.id
+//        def beforeChange = Instant.now()
+//        // TODO update, creating new version
+//        def afterChange = Instant.now()
+//
+//        when: "get the last still valid version as of now"
+//        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + Instant.now().toString(),
+//                ObjectNode.class)
+//        def response = jsonSlurper.parseText(json.toString())
+//
+//        then: "the version is retrieved"
+//        response.entity.id != null
+//        response.entity.labels == ["Label1", "Label2"]
+//
+//        response.version.name == "Name1"
+//        response.version.dynamicProperties.keyString == "value1"
+//        response.version.dynamicProperties.keyDate == testDate
+//        response.version.dynamicProperties.keyInt == 42
+//        response.version.dynamicProperties.keyDouble == 4.2
+//    }
 
     def "Get latest version of an entity"() {
         given:
         def beforeCreation = Instant.now()
-        def dto = newEntity("Control")
+        def dto = newEntity("Control", "Name1")
         Long id = dto.entity.id
 
         when:
@@ -104,7 +147,7 @@ class EntityITSpec extends Specification {
     def "Create a new entity"() {
         when:
         def beforeCreation = Instant.now()
-        Object response = newEntity("cONtrOl")
+        Object response = newEntity("cONtrOl", "Name1")
 
         then:
         response.entity.id != null
@@ -136,14 +179,14 @@ class EntityITSpec extends Specification {
 //
 //    }
 
-    def "remove an entity"() {
-        // sets "until" on last version to now
-        // sets "until" on all incoming relations to now
-    }
+//    def "remove an entity"() {
+//        // sets "until" on last version to now
+//        // sets "until" on all incoming relations to now
+//    }
 
-    private Object newEntity(String label) {
+    private Object newEntity(String label, String name) {
         def anchor = PerpetualEntity.newInstance("label1")
-        def version = anchor.newVersion("Name1", "Abbr1", Map.of(
+        def version = anchor.newVersion(name, "Abbr1", Map.of(
                 "keyString", "value1",
                 "keyDate", Instant.parse(testDate),
                 "keyInt", 42,
@@ -154,5 +197,9 @@ class EntityITSpec extends Specification {
         def json = restTemplate.postForObject("/api/v1/entities/${label}", request, ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
         response
+    }
+
+    def cleanup() {
+        restTemplate.delete("/api/v1/entities/control")
     }
 }

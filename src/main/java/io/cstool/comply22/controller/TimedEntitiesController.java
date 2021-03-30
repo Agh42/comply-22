@@ -34,9 +34,14 @@ public class TimedEntitiesController {
         return result;
     }
 
+    @DeleteMapping("/{label}")
+    public void deleteAll(@PathVariable @NotEmpty  String label) {
+        entityService.deleteAll(capitalize(label));
+    }
+
     @GetMapping("/{label}")
-    public Slice<EntityDto> findAll(@PathVariable @NotEmpty String label,
-                                    @RequestParam(required = false, defaultValue = "100")
+    public Slice<PerpetualEntity> findAll(@PathVariable @NotEmpty String label,
+                                    @RequestParam(required = false, defaultValue = "20")
                                     @Min(value = 10)
                                     @Max(value = 200)
                                             Integer size,
@@ -47,13 +52,13 @@ public class TimedEntitiesController {
                                     @Size(max = 1024)
                                             String sortBy,
                                     @RequestParam(required = false, defaultValue = "asc")
-                                    @Pattern(regexp = "[asc|desc|ASC|DESC]")
+                                    @Pattern(regexp = "(^$|asc|desc|ASC|DESC)")
                                             String sortOrder) {
 
         if (sortOrder.equalsIgnoreCase("asc"))
-            return entityService.findHistory(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
+            return entityService.findAllCurrent(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
 
-        return entityService.findHistory(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
+        return entityService.findAllCurrent(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
 
     }
 

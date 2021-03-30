@@ -9,7 +9,6 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +38,7 @@ public class PerpetualEntityService {
     public EntityDto createEntity(String label, EntityDto dto) {
         // if dto has labels, replace them with path variable:
         var anchor = PerpetualEntity.newInstance(label);
+
         var version = anchor.newVersion(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
@@ -67,7 +67,11 @@ public class PerpetualEntityService {
         return entityRepository.findVersionAt(label, id, timestamp);
     }
 
-    public Slice<EntityDto> findHistory(String label, Pageable pageable) {
+    public Slice<PerpetualEntity> findAllCurrent(String label, Pageable pageable) {
         return entityRepository.findAllCurrent(label, pageable);
+    }
+
+    public void deleteAll(String label) {
+        entityRepository.deleteAllByLabel(label);
     }
 }

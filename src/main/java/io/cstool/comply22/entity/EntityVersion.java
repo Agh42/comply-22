@@ -6,16 +6,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cstool.comply22.adapter.DynPropsSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.neo4j.driver.internal.value.*;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
@@ -27,6 +26,9 @@ import java.util.Map;
 public class EntityVersion {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
+
 
     @Id
     @GeneratedValue()
@@ -43,28 +45,13 @@ public class EntityVersion {
      * Dynamic properties.
      */
     @CompositeProperty
-            @JsonIgnore
+    @JsonIgnore
     //@JsonSerialize(using = DynPropsSerializer.class, as=Map.class)
-    Map<String, Object> dynamicProperties = new HashMap<>();
+    Map<String, Object> dynamicProperties;
 
-    /*
-     * We need to provide mappers from certain SDN types to basic types
-     * or Jackson will trip on them during serialization.
-     */
     @JsonGetter("dynamicProperties")
     public Map<String,Object> serializeCustomProperties() {
-        Map<String,Object> result = new HashMap<>(dynamicProperties.size());
-        dynamicProperties.forEach((k,v) -> {
-            if (v instanceof IntegerValue)
-                result.put(k, ((IntegerValue) v).asInt());
-            else if (v instanceof FloatValue)
-                result.put(k, ((FloatValue) v).asDouble());
-            else if (v instanceof ValueAdapter)
-                result.put(k, ((ValueAdapter) v).asString());
-            else
-                result.put(k,v);
-        });
-        return result;
+        return dynPropsSerializer.serialize(dynamicProperties);
     }
 
     @JsonSetter("dynamicProperties")

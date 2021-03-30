@@ -1,18 +1,16 @@
 package io.cstool.comply22.repository;
 
-import io.cstool.comply22.entity.EntityDto;
 import io.cstool.comply22.entity.PerpetualEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-public interface PerpetualEntityRepository extends PagingAndSortingRepository<PerpetualEntity, Long>,
+public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEntity, Long>,
     NonDomainResults {
 
 
@@ -26,14 +24,14 @@ public interface PerpetualEntityRepository extends PagingAndSortingRepository<Pe
      */
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE id(a) = $id " +
-            //"AND $label IN labels(a)  " +
-            "AND r.reality = 0  " +
+            "AND $label IN labels(a) " +
+            "AND r.reality = 0 " +
             "WITH a,v,r " +
             "ORDER BY v.from DESC " +
             "LIMIT 1 " +
-            "RETURN a, collect(r), collect(v)"
+            "RETURN a, collect(r), collect(v) "
     )
-    public Optional<PerpetualEntity> findLatestVersion(String label, Long id);
+    public Optional<PerpetualEntity> findLatestVersion(@Param("label") String label, Long id);
 
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE a.id = $id " +
@@ -52,14 +50,14 @@ public interface PerpetualEntityRepository extends PagingAndSortingRepository<Pe
      * @param pageable
      * @return
      */
-    @Query(value="MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE v.until IS null " +
-            "AND $label IN labels(a)  " +
-            "RETURN a,collect(v) " +
-            "ORDER BY v.from ASC " +
-            "SKIP $skip LIMIT $limit"
+    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
+            "WHERE r.reality = 0  " +
+            "AND $label IN labels(a) " +
+            "RETURN a, collect(r), collect(v) " +
+            "ORDER BY a.id ASC " +
+            "SKIP $skip LIMIT $limit "
     )
-    Slice<EntityDto> findAllCurrent(String label, Pageable pageable);
+    Slice<PerpetualEntity> findAllCurrent(@Param("label") String label, Pageable pageable);
 
 // all versions for one id
 //    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +

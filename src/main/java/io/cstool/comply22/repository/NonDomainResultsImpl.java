@@ -1,10 +1,8 @@
 package io.cstool.comply22.repository;
 
 import org.springframework.data.neo4j.core.Neo4jClient;
-import org.springframework.data.neo4j.repository.query.Query;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class NonDomainResultsImpl implements NonDomainResults {
@@ -17,8 +15,8 @@ public class NonDomainResultsImpl implements NonDomainResults {
 
     @Override
     public Collection<String> findLabelsForNode(Long id) {
-        Map<String,Object> params = Map.of("id", id);
-        var result = this.neo4jClient
+        Map<String, Object> params = Map.of("id", id);
+        var labels = this.neo4jClient
                 .query("" +
                         "MATCH (a:Entity) " +
                         "WHERE id(a) = $id " +
@@ -33,6 +31,14 @@ public class NonDomainResultsImpl implements NonDomainResults {
                 .first()
                 .orElseThrow()
                 .get("labels");
-        return (Collection<String>) result;
+        return (Collection<String>) labels;
+    }
+
+    @Override
+    public void deleteAllByLabel(String label) {
+        Map<String,Object> params = Map.of("label", label);
+        neo4jClient.query("MATCH (a:Entity) WHERE $label IN labels(a) DETACH DELETE a")
+                .bindAll(params)
+                .run();
     }
 }
