@@ -166,18 +166,18 @@ class EntityITSpec extends Specification {
         response.entity.versionOf[0].until == null
     }
 
-//    def "update an entity"() {
-//        given:
-//        def beforeCreation = Instant.now()
-//        def dto = newEntity("Control")
-//        Long id = dto.entity.id
-//        def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
-//                ObjectNode.class)
-//        def response = jsonSlurper.parseText(json.toString())
-//
-//        then:
-//
-//    }
+    def "update an entity"() {
+        given:
+        def beforeCreation = Instant.now()
+        def dto = newEntity("Control")
+        Long id = dto.entity.id
+        def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
+                ObjectNode.class)
+        def response = jsonSlurper.parseText(json.toString())
+
+        then:
+
+    }
 
 //    def "remove an entity"() {
 //        // sets "until" on last version to now
