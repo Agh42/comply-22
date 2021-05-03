@@ -40,6 +40,9 @@ RETURN c.id, e.id, e.title, part.id, part.prose, param.id, param.label
 ORDER BY c.id, e.id, part.id, param.id
 LIMIT 1000;
 
-
+# list controls that are included in HIGH profile but not MODERATE:
+MATCH (p:Profile{name:"HIGH"})-[:INCLUDES_CONTROL]->(c)
+WHERE NOT (c)<-[:INCLUDES_CONTROL]-(:Profile{name:"MODERATE"})
+RETURN p, c;
 
 

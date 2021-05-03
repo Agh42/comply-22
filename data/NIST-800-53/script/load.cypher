@@ -140,7 +140,8 @@ WHERE b2.id = split(elink.href,'#')[1]
 MERGE (e)-[er:REFERENCES]->(b2)
 
 
-# 7. delete all:
+
+#  delete all:
 # MATCH (n:ControlParam) DETACH DELETE n;
 # MATCH (n:ControlProp) DETACH DELETE n;
 # MATCH (n:rev5Control) DETACH DELETE n;
