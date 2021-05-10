@@ -23,6 +23,7 @@ ORDER by numRequired DESC
 LIMIT 100;
 
 # find all enhancements, parts and params for one control:
+# (expand ac2.5 to also see working link to ac-11 fro within the prose)
 MATCH p=(c:rev5Control)<-[r:IS_ENHANCEMENT_OF*]-(c2:rev5Control)-[:HAS_PART*]->(part)
 WHERE c.id='ac-2'
 WITH p, c2
@@ -30,8 +31,15 @@ MATCH p2=(c2)-[:HAS_PARAM]->(param)
 RETURN p,p2 limit 1000;
 
 
+# same, but add set-param contraints from profiles:
+MATCH p=(c:rev5Control)<-[r:IS_ENHANCEMENT_OF*]-(c2:rev5Control)-[:HAS_PART*]->(part)
+WHERE c.id='ac-2'
+WITH p, c2
+MATCH p2=(c2)-[:HAS_PARAM]->(param)<-[:CONSTRAINS]-(sp:SetParam)
+RETURN p,p2,sp limit 1000;
+
+
 # list control with enhancements, parts and params for those parts:
-# (expand ac2.5 to also see working link to ac-11 fro within the prose)
 MATCH p=(c:rev5Control)<-[r:IS_ENHANCEMENT_OF*]-(e:rev5Control)-[:HAS_PART*]->(part)
 WHERE c.id='ac-2'
 WITH e, c, part
