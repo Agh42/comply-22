@@ -31,12 +31,21 @@ MATCH p2=(c2)-[:HAS_PARAM]->(param)
 RETURN p,p2 limit 1000;
 
 
-# same, but add set-param contraints from profiles:
+# same, but also show set-param contraints from profiles:
 MATCH p=(c:rev5Control)<-[r:IS_ENHANCEMENT_OF*]-(c2:rev5Control)-[:HAS_PART*]->(part)
 WHERE c.id='ac-2'
 WITH p, c2
 MATCH p2=(c2)-[:HAS_PARAM]->(param)<-[:CONSTRAINS]-(sp:SetParam)
 RETURN p,p2,sp limit 1000;
+
+
+# show profile alterations to controls:
+MATCH p=(c:rev5Control)<-[r:IS_ENHANCEMENT_OF*]-(c2:rev5Control)-[:HAS_PART*]->(part)
+WHERE c.id='ac-2'
+WITH p, c2
+MATCH p3=(c2)<-[:ADD_TO]-(a:Addition)
+RETURN p,p3 limit 1000;
+
 
 
 # list control with enhancements, parts and params for those parts:
