@@ -6,13 +6,15 @@ It uses Neo4J to map different information security and other standards to each 
 
 Comply-22 can also be used to document the application, implementation and assessment of controls over time.
 
+
+
 ## Engine / REST API
 
 The first version is currently being developed.
 
 ## Data
 
-Comply-22 includes some datasets based on publicly available sources. You will need the APOC library to scrape them directly from Github into the datgabase. There
+Comply-22 includes some datasets based on publicly available sources. You will need the APOC library to scrape them directly from Github into the database. There
 is no need to download the files first.
 
 ## OSCAL: NIST 800-53 rev5 
@@ -23,10 +25,40 @@ into the Neo4J database.
 
 There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCAL/documentation/schema/) (LOW, MEDIUM, HIGH and PRIVACY profiles). These will be linked to the catalog layer nodes so make sure to import these first.
 
+### **Examples:**
+
+### *Control AC-2 with enhancements and parts:*
+![Control AC-2 with enhancements and parts](doc/img/ac2-legend.png)
+
+### *Relations between controls:*
+![](doc/img/ac-relations.png)
+
+### *Tabular output: controls most required by other controls:*
+![](doc/img/most-required-controls.png)
+
+### *Example: referenced backmatter:*
+![](doc/img/referenced-backmatter.png)
+
+### *A withdrawn control (the loop on sc-12 was confirmed by @usnistgov to [probably be an error in the FISMA source](https://github.com/usnistgov/oscal-content/issues/72)*):
+![](doc/img/sc-12-loop.png)
+
 ## OSCAL: FedRAMP profiles
 
 These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository right into Neo4J. Theay will be linked to the previously imported 800-53 controls and control enhancements
 so make sure that you have imported them first.
+
+### *A FedRAMP profile constraining a time range parameter to 24 hours*:
+![](doc/img/fedramp-setparam.png)
+
+## Other sources
+
+There are other publicly available Neo4J databases that can be included as well, such as the graph from the [SCKG](https://gitlab.com/redteam-project/sckg) project.
+
+SCKG doesn't model all of the standards in the greatest depth (i.e. control enhancements, properties, parts won't be differentiated for 800-53) but it makes up for that by including a lot of standards.
+
+### *SCKG Example: a connection from PCI DSS to ISO/IEC 27001:2013 found by the "shortestPath" algorithm using a NIST CSF control as an intermediary*
+![](doc/img/pcidss-27001-via-csf.png)
+
 
 ## German BSI IT-Baseline Catalog
 
@@ -34,3 +66,9 @@ These scripts import a JSON representation of the German [IT-Baseline catalog](h
 convert an XML version of the catalog into a JSON format suitable for importing with APOC.
 
 The required source XML file can be found as part of the [verinice](https://github.com/SerNet/verinice) project
+
+### *Connections from modules ("Bausteine") to Safeguards ("Umsetzungshinweise")':*
+![](doc/img/baustein-zu-umsetzungshinweis.png)
+
+### *Which threats are referenced by the most safeguards:*
+![](doc/img/meist-referenzierte-gefaehrdung.png)
