@@ -44,11 +44,21 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ## OSCAL: FedRAMP profiles
 
-These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository right into Neo4J. Theay will be linked to the previously imported 800-53 controls and control enhancements
+These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository directly into Neo4J. They will be linked to the previously imported 800-53 controls and control enhancements
 so make sure that you have imported them first.
 
-### *A FedRAMP profile constraining a time range parameter to 24 hours*:
+### *A FedRAMP profile can constrain control parameters to specific values*
+Here a time range parameter of control enhancement AV-2.2 is constrained to a value of "24 hours from last use". 
+
+This applies to the second parameter of this statement: "Automatically {{ remove / disable }} temporary and emergency accounts after {{ organization-defined time period for each type of account }}.
+
 ![](doc/img/fedramp-setparam.png)
+
+### *A FedRAMP profile can add parameters and parts to controls*
+
+Here: additional requirements and guidance are added to control RA-5.6:
+
+![](doc/img/profile-fedramphigh-adds-additional-guidance-to-control.png)
 
 ## Other sources
 
