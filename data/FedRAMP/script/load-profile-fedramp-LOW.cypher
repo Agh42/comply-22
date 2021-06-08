@@ -1,13 +1,13 @@
 
-// 5 Import Fedramp HIGH profile (for 800-53 rev4):
+// 5 Import Fedramp LOW profile (for 800-53 rev4):
 
 // 5.1 Link controls:
 
-WITH "https://raw.githubusercontent.com/usnistgov/oscal-content/master/fedramp.gov/json/FedRAMP_HIGH-baseline_profile.json" AS url
+WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_LOW-baseline_profile.json" AS url
 CALL apoc.load.json(url, '$.profile') YIELD value
 UNWIND value AS profile
 
-MERGE (p:Profile{name:"FedRAMP_HIGH"})
+MERGE (p:Profile{name:"FedRAMP_LOW"})
 SET p.title = profile.metadata.title
 SET p.oscalVersion = profile.metadata.`oscal-version` 
 SET p.uuid = profile.uuid
@@ -28,13 +28,13 @@ MERGE (p)-[:INCLUDES_CONTROL]->(c1);
 // a synthetic compound id for the members of the additions array (see below)
 // so we're able to reference them in te next separate step.
 
-WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_HIGH-baseline_profile.json" AS url
+WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_LOW-baseline_profile.json" AS url
 CALL apoc.load.json(url, '$.profile') YIELD value
 UNWIND value AS profile
 
 UNWIND keys(profile.modify.`set-parameters`) AS setparam
 MATCH (pa:ControlParam) WHERE pa.id = setparam
-MATCH (pr:Profile{name:"FedRAMP_HIGH"})
+MATCH (pr:Profile{name:"FedRAMP_LOW"})
 
 MERGE (pr)-[:SET_PARAM]->(sp:SetParam)-[:CONSTRAINS]->(pa)
 SET sp.id = setparam
@@ -70,7 +70,7 @@ SET propNode.layer = 'Profile';
 // 5.2b Add alteration parts:
 // (with props)
 
-WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_HIGH-baseline_profile.json" AS url
+WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_LOW-baseline_profile.json" AS url
 CALL apoc.load.json(url, '$.profile') YIELD value
 UNWIND value AS profile
 UNWIND profile.modify.alters AS alteration
@@ -95,7 +95,7 @@ SET partPropNode.layer = 'Profile';
 
 // 5.2.c Add parts' subparts (with props):
 
-WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_HIGH-baseline_profile.json" AS url
+WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_LOW-baseline_profile.json" AS url
 CALL apoc.load.json(url, '$.profile') YIELD value
 UNWIND value AS profile
 UNWIND profile.modify.alters AS alteration
@@ -122,13 +122,13 @@ SET partL2PropNode.layer = 'Profile';
 
 // 5.3 Load alterations: remove props
 
-WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_HIGH-baseline_profile.json" AS url
+WITH "https://raw.githubusercontent.com/GSA/fedramp-automation/master/baselines/rev4/json/FedRAMP_rev4_LOW-baseline_profile.json" AS url
 CALL apoc.load.json(url, '$.profile') YIELD value
 UNWIND value AS profile
 
 UNWIND keys(profile.modify.`set-parameters`) AS setparam
 MATCH (pa:ControlParam) WHERE pa.id = setparam
-MATCH (pr:Profile{name:"FedRAMP_HIGH"})
+MATCH (pr:Profile{name:"FedRAMP_LOW"})
 
 UNWIND profile.modify.alters AS alteration
 MATCH (cta:rev5Control)

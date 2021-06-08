@@ -28,18 +28,23 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 ### **Examples:**
 
 ### *Control AC-2 with enhancements and parts:*
+
 ![Control AC-2 with enhancements and parts](doc/img/ac2-legend.png)
 
 ### *Relations between controls:*
+
 ![](doc/img/ac-relations.png)
 
 ### *Tabular output: controls most required by other controls:*
+
 ![](doc/img/most-required-controls.png)
 
 ### *Example: referenced backmatter:*
+
 ![](doc/img/referenced-backmatter.png)
 
 ### *A withdrawn control (the loop on sc-12 was confirmed by @usnistgov to [probably be an error in the FISMA source](https://github.com/usnistgov/oscal-content/issues/72)*):
+
 ![](doc/img/sc-12-loop.png)
 
 ## OSCAL: FedRAMP profiles
@@ -48,6 +53,7 @@ These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automatio
 so make sure that you have imported them first.
 
 ### *A FedRAMP profile can constrain control parameters to specific values*
+
 Here a time range parameter of control enhancement AV-2.2 is constrained to a value of "24 hours from last use". 
 
 This applies to the second parameter of this statement: "Automatically {{ remove / disable }} temporary and emergency accounts after {{ organization-defined time period for each type of account }}.
@@ -60,6 +66,10 @@ Here: additional requirements and guidance are added to control RA-5.6:
 
 ![](doc/img/profile-fedramphigh-adds-additional-guidance-to-control.png)
 
+### The FedRAMP 'HIGH' profile puts more strict constraints on control parameters than the FedRAMP 'MODERATE' profile:
+
+![](doc/img/fedramp-moderate-vs-high-params-ac-2.png)
+
 ## Other sources
 
 There are other publicly available Neo4J databases that can be included as well, such as the graph from the [SCKG](https://gitlab.com/redteam-project/sckg) project.
@@ -67,8 +77,8 @@ There are other publicly available Neo4J databases that can be included as well,
 SCKG doesn't model all of the standards in the greatest depth (i.e. control enhancements, properties, parts won't be differentiated for 800-53) but it makes up for that by including a lot of standards.
 
 ### *SCKG Example: a connection from PCI DSS to ISO/IEC 27001:2013 found by the "shortestPath" algorithm using a NIST CSF control as an intermediary*
-![](doc/img/pcidss-27001-via-csf.png)
 
+![](doc/img/pcidss-27001-via-csf.png)
 
 ## German BSI IT-Baseline Catalog
 
@@ -78,7 +88,16 @@ convert an XML version of the catalog into a JSON format suitable for importing 
 The required source XML file can be found as part of the [verinice](https://github.com/SerNet/verinice) project
 
 ### *Connections from modules ("Bausteine") to Safeguards ("Umsetzungshinweise")':*
+
 ![](doc/img/baustein-zu-umsetzungshinweis.png)
 
 ### *Which threats are referenced by the most safeguards:*
+
 ![](doc/img/meist-referenzierte-gefaehrdung.png)
+
+## Schema Visualization
+
+The complete database schema currently looks as follows (this includes nodes from [SCKG](https://gitlab.com/redteam-project/sckg), see above):
+
+![](doc/img/oscal-80053-fedramp-schema.png)
+![](doc/img/itbaseline-schema.png)
