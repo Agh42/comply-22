@@ -27,7 +27,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ### **Examples:**
 
-### *Control AC-2 with enhancements and parts:*
+### *The control 'AC-2' with its enhancements and parts:*
 
 ![Control AC-2 with enhancements and parts](doc/img/ac2-legend.png)
 
