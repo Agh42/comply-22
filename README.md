@@ -47,7 +47,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/sc-12-loop.png)
 
-## OSCAL: FedRAMP profiles
+## OSCAL: FedRAMP profiles (rev4)
 
 These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository directly into Neo4J. They will be linked to the previously imported 800-53 controls and control enhancements
 so make sure that you have imported them first.
