@@ -35,7 +35,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/ac-relations.png)
 
-### *Tabular output: controls most required by other controls:*
+### *Tabular output: which controls most required by other controls:*
 
 ![](doc/img/most-required-controls.png)
 
@@ -52,7 +52,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository directly into Neo4J. They will be linked to the previously imported 800-53 controls and control enhancements
 so make sure that you have imported them first.
 
-### *A FedRAMP profile can constrain control parameters to specific values*
+### *Example: a FedRAMP profile can constrain control parameters to specific values*
 
 Here a time range parameter of control enhancement AV-2.2 is constrained to a value of "24 hours from last use". 
 
@@ -85,7 +85,7 @@ SCKG doesn't model all of the standards in the greatest depth (i.e. control enha
 These scripts import a JSON representation of the German [IT-Baseline catalog](https://www.bsi.bund.de/EN/Topics/ITGrundschutz/itgrundschutz_node.html) ("IT-Grundschutz-Kompendium") into Neo4J. A script is provided to
 convert an XML version of the catalog into a JSON format suitable for importing with APOC.
 
-The required source XML file can be found as part of the [verinice](https://github.com/SerNet/verinice) project
+The source XML file that was used can be found as part of the [verinice](https://github.com/SerNet/verinice) project
 
 ### *Connections from modules ("Bausteine") to Safeguards ("Umsetzungshinweise")':*
 
