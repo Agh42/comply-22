@@ -2,9 +2,9 @@
 
 Comply-22 is a graph-based compliance engine. 
 
-It uses Neo4J to map different information security and other standards to each other over multiple hops. Neo4J is uniquely suited for this task.
+It uses Neo4J to map relationships between different information security regulations, legislation and best practices. A REST API can be used to query the mapping information.
 
-Comply-22 can also be used to document the application, implementation and assessment of controls over time.
+Comply-22 can also be used to document the application, implementation and assessment of security controls over time.
 
 
 
