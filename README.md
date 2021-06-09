@@ -78,6 +78,8 @@ SCKG doesn't model all of the standards in the greatest depth (i.e. control enha
 
 ### *SCKG Example: a connection from PCI DSS to ISO/IEC 27001:2013 found by the "shortestPath" algorithm using a NIST CSF control as an intermediary*
 
+We can deduce that there is an analogy between the ISO 27001 control A.14.2.8 ("System Security Testing") and the PCI DSS controls 11.4 ("Use intrusion detection and prevention") and 11.5 ("Deploy a change detection mechanism"):
+
 ![](doc/img/pcidss-27001-via-csf.png)
 
 ## German BSI IT-Baseline Catalog
