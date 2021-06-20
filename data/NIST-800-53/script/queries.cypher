@@ -1,11 +1,12 @@
 # Some example queries:
 
-# List controls (322) without Enhancements:
+# List controls without Enhancements:
+# should return 322 items:
 MATCH (c1:rev5Control) 
 WHERE not c1:Enhancement
 RETURN c1.id, c1.title;
 
-# List enhancements(867), with their controls
+# List enhancements (867), with their controls
 # Controls + Enhancements: 1189 total
 MATCH (c1:Enhancement)-[:IS_ENHANCEMENT_OF]->(c2)
 RETURN c1.id, c1.title, c2.id, c2.title;
@@ -33,14 +34,33 @@ ORDER by numRequired DESC
 LIMIT 100;
 
 # Lvl 2:
-# returns 121 controls
+# Returns 1221 controls for the top 1 referenced control
+# (alread exceeding the total number of control(enhancements) of 1189
+# overall. So due to the high interconnectivity of the controls, after
+# only two hops, some controls are already being referenced by every
+# other control in the database. These could be viewed as the most
+# important controls and indeed these are central important topics. t
+# the top is SA-8 "Security and PRivacy Engineering principles". This
+# control is referenced by 1221 controls over two hops, follow by other
+# important subjects such as AC-3 "Access Enforcement" (919) and AC-17
+# ("Remote access").
+# On the low end of the list we find controls that are references only
+# once or twice - compared to hundreds of even thousands of times for
+# the controls mentioned above. As expected, these are specialized
+# topics such as PE-15 "Water damage protection" (1 reference even after
+# two hops) or SC-50 ("Software-enforced Separation and Policy
+# Enforcement"). These controls - even though important - have a narrow
+# focus and are therfor not being referenced by many oter controls as
+# prerequisites.
 MATCH (c1)<-[rx:RELATED*2{type:'related'}]-(c2)
 RETURN c1.id, c1.title, COUNT(rx) AS numRequiredLv2
 ORDER by numRequiredLv2 DESC
 LIMIT 10;
 
 # Lvl 5:
-# (runs approx. 8 min.)
+# (runs approx. 8 min., doesn't make much sende anymore because at this
+# depth every control is related to every oter control thousands or even
+# millions of times)
 MATCH (c1)<-[rx:RELATED*5{type:'related'}]-(c2)
 RETURN c1.id, c1.title, COUNT(rx) AS numRequiredLv5
 ORDER by numRequiredLv5 DESC
