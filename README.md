@@ -2,9 +2,9 @@
 
 Comply-22 is a graph-based compliance engine. 
 
-It uses Neo4J to map different information security and other standards to each other over multiple hops. Neo4J is uniquely suited for this task.
+It uses Neo4J to map relationships between different information security regulations, legislation and best practices. A REST API can be used to query the mapping information.
 
-Comply-22 can also be used to document the application, implementation and assessment of controls over time.
+Comply-22 can also be used to document the application, implementation and assessment of security controls over time.
 
 
 
@@ -35,7 +35,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/ac-relations.png)
 
-### *Tabular output: controls most required by other controls:*
+### *Tabular output: which controls most required by other controls:*
 
 ![](doc/img/most-required-controls.png)
 
@@ -47,12 +47,12 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/sc-12-loop.png)
 
-## OSCAL: FedRAMP profiles
+## OSCAL: FedRAMP profiles (rev4)
 
 These scripts will scrape the [FedRAMP](https://github.com/GSA/fedramp-automation) profiles (LOW, MEDIUM, HIGH) form the Github repository directly into Neo4J. They will be linked to the previously imported 800-53 controls and control enhancements
 so make sure that you have imported them first.
 
-### *A FedRAMP profile can constrain control parameters to specific values*
+### *Example: a FedRAMP profile can constrain control parameters to specific values*
 
 Here a time range parameter of control enhancement AV-2.2 is constrained to a value of "24 hours from last use". 
 
@@ -76,7 +76,11 @@ There are other publicly available Neo4J databases that can be included as well,
 
 SCKG doesn't model all of the standards in the greatest depth (i.e. control enhancements, properties, parts won't be differentiated for 800-53) but it makes up for that by including a lot of standards.
 
-### *SCKG Example: a connection from PCI DSS to ISO/IEC 27001:2013 found by the "shortestPath" algorithm using a NIST CSF control as an intermediary*
+### *Compliance Mapping: a connection from PCI DSS to ISO/IEC 27001:2013 was found by the "shortestPath" algorithm using a NIST CSF control as an intermediary*
+
+This is accomplished by using the [SCKG](https://gitlab.com/redteam-project/sckg) graph.
+
+We can deduce that there is an analogy between the ISO 27001 control A.14.2.8 ("System Security Testing") and the PCI DSS controls 11.4 ("Use intrusion detection and prevention") and 11.5 ("Deploy a change detection mechanism"):
 
 ![](doc/img/pcidss-27001-via-csf.png)
 
@@ -90,7 +94,7 @@ SCKG doesn't model all of the standards in the greatest depth (i.e. control enha
 These scripts import a JSON representation of the German [IT-Baseline catalog](https://www.bsi.bund.de/EN/Topics/ITGrundschutz/itgrundschutz_node.html) ("IT-Grundschutz-Kompendium") into Neo4J. A script is provided to
 convert an XML version of the catalog into a JSON format suitable for importing with APOC.
 
-The required source XML file can be found as part of the [verinice](https://github.com/SerNet/verinice) project
+The source XML file that was used can be found as part of the [verinice](https://github.com/SerNet/verinice) project
 
 ### *Connections from modules ("Bausteine") to Safeguards ("Umsetzungshinweise")':*
 
