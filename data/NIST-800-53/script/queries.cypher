@@ -1,5 +1,15 @@
 # Some example queries:
 
+# List controls (322) without Enhancements:
+MATCH (c1:rev5Control) 
+WHERE not c1:Enhancement
+RETURN c1.id, c1.title;
+
+# List enhancements(867), with their controls
+# Controls + Enhancements: 1189 total
+MATCH (c1:Enhancement)-[:IS_ENHANCEMENT_OF]->(c2)
+RETURN c1.id, c1.title, c2.id, c2.title;
+
 # a withdrawn control with "incorporated-into" link 
 MATCH (c:rev5Control)-[r:HAS_PROP]->(p:ControlProp{value:'withdrawn'}) 
 WHERE c.id = 'sc-12.4'
@@ -16,11 +26,26 @@ RETURN b.title, b.rlinks, count(r) as numReferenced
 ORDER by numReferenced DESC
 LIMIT 100;
 
-# find controls most required by other controls:
-MATCH (c1)<-[r:RELATED{type:'required'}]-(c2) 
-RETURN c1.id, c1.title, count(r) as numRequired
+# find controls most referenced by other controls:
+MATCH (c1)<-[r:RELATED{type:'related'}]-(c2) 
+RETURN c1.id, c1.title, count(r) AS numRequired
 ORDER by numRequired DESC
 LIMIT 100;
+
+# Lvl 2:
+# returns 121 controls
+MATCH (c1)<-[rx:RELATED*2{type:'related'}]-(c2)
+RETURN c1.id, c1.title, COUNT(rx) AS numRequiredLv2
+ORDER by numRequiredLv2 DESC
+LIMIT 10;
+
+# Lvl 5:
+# (runs approx. 8 min.)
+MATCH (c1)<-[rx:RELATED*5{type:'related'}]-(c2)
+RETURN c1.id, c1.title, COUNT(rx) AS numRequiredLv5
+ORDER by numRequiredLv5 DESC
+LIMIT 10;
+
 
 # find all enhancements, parts and params for one control:
 # (expand ac2.5 to also see working link to ac-11 fro within the prose)

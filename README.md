@@ -80,6 +80,11 @@ SCKG doesn't model all of the standards in the greatest depth (i.e. control enha
 
 ![](doc/img/pcidss-27001-via-csf.png)
 
+### *SCKG: A shortest-path connection between Cobit 5 APO-012.02 ("Analyse risk") and NIST 800-53rev4 PM-16 ("Treat awareness program") , again using a NIST CSF control as an intermediary*
+
+![](doc/img/shortestPathCobitNist800-53-withQuery.png)
+
+
 ## German BSI IT-Baseline Catalog
 
 These scripts import a JSON representation of the German [IT-Baseline catalog](https://www.bsi.bund.de/EN/Topics/ITGrundschutz/itgrundschutz_node.html) ("IT-Grundschutz-Kompendium") into Neo4J. A script is provided to
