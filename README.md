@@ -6,8 +6,6 @@ It uses Neo4J to map relationships between different information security regula
 
 Comply-22 can also be used to document the application, implementation and assessment of security controls over time.
 
-
-
 ## Engine / REST API
 
 The first version is currently being developed.
@@ -35,7 +33,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/ac-relations.png)
 
-### *Tabular output: which controls most required by other controls:*
+### *Tabular output: which controls are most required by other controls:*
 
 ![](doc/img/most-required-controls.png)
 
@@ -43,7 +41,7 @@ There are also scripts to scrape the [profile layer](https://pages.nist.gov/OSCA
 
 ![](doc/img/referenced-backmatter.png)
 
-### *A withdrawn control (the loop on sc-12 was confirmed by @usnistgov to [probably be an error in the FISMA source](https://github.com/usnistgov/oscal-content/issues/72)*):
+### *A withdrawn control (the loop on sc-12 was confirmed by @usnistgov to [probably be an error in the FISMA source](https://github.com/usnistgov/oscal-content/issues/72)):*
 
 ![](doc/img/sc-12-loop.png)
 
