@@ -91,6 +91,15 @@ class EntityITSpec extends Specification {
 //
 //    }
 
+//    def "Get related entities at point in time"() 
+//    def "Get related entities at current point in time"() 
+//    def "Remove relation to another entity"()
+//    def "Add relation to another entity"()
+//    def "Update a relation's attributes"()
+//    def "Get current relation attributes"()
+//    def "Get relation attributes at point in time"()
+
+
 //    def "Get version at point in time"() {
 //        given:
 //        def beforeCreation = Instant.now()
