@@ -99,6 +99,10 @@ class EntityITSpec extends Specification {
 //    def "Get current relation attributes"()
 //    def "Get relation attributes at point in time"()
 
+//  def "Create alternate reality from now"()
+//  def "Create alternate reality from point in time"()
+//  def "Create alternate reality from alternate reality"()
+//  def "Delete alternate reality"()
 
 //    def "Get version at point in time"() {
 //        given:
