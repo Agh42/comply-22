@@ -18,8 +18,8 @@ import java.time.Instant;
  *
  * Recorded-time is the time at which this particular version was recorded in the system.
  *
- * What-if-scenario analysis and similar use-cases are supported by the {@code realityId} field which allows
- * keeping multiple parallel versions for the same time period.
+ * What-if-scenario analysis and similar use-cases are supported by the reality tree which allows
+ * keeping multiple parallel versions of the database for the same time period.
  */
 @RelationshipProperties
 @Data
@@ -47,15 +47,12 @@ public class VersionOf {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant recorded;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Integer reality = 0;
-
     public static VersionOf relationShipTo(EntityVersion version) {
         return new VersionOf(null,
                 version,
                 Instant.now(),
                 null,
-                Instant.now(),
-                0);
+                Instant.now()
+        );
     }
 }

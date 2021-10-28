@@ -54,6 +54,10 @@ public class PerpetualEntity {
         return entity;
     }
 
+    public static PerpetualEntity newInstance() {
+        return new PerpetualEntity();
+    }
+
     public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version= EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));

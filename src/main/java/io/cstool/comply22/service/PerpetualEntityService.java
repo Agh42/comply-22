@@ -19,7 +19,6 @@ public class PerpetualEntityService {
     private static final String QUERY = "MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE id(a) = $id " +
             //"AND 'Control' IN labels(a) " +
-            "AND r.reality = 0 " +
             "WITH a,v,r " +
             "ORDER BY v.from DESC " +
             "LIMIT 1 " +
@@ -46,7 +45,6 @@ public class PerpetualEntityService {
         anchor = entityRepository.save(anchor);
         return new EntityDto(
                 anchor,
-                anchor.getVersionOf(),
                 anchor.getVersions().stream().findFirst().orElseThrow());
     }
 

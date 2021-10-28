@@ -25,7 +25,6 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE id(a) = $id " +
             "AND $label IN labels(a) " +
-            "AND r.reality = 0 " +
             "WITH a,v,r " +
             "ORDER BY v.from DESC " +
             "LIMIT 1 " +
@@ -37,7 +36,6 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
             "WHERE a.id = $id " +
             "AND $label IN labels(a)  " +
             "AND (v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until)) " +
-            "AND r.reality = 0  " +
             "WITH a,v,r " +
             "RETURN a, collect(r), collect(v)"
     )
@@ -51,8 +49,7 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
      * @return
      */
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE r.reality = 0  " +
-            "AND $label IN labels(a) " +
+            "WHERE $label IN labels(a) " +
             "RETURN a, collect(r), collect(v) " +
             "ORDER BY a.id ASC " +
             "SKIP $skip LIMIT $limit "

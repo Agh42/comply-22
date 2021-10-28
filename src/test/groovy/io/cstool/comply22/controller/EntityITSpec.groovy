@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.test.context.ActiveProfiles
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -154,7 +155,6 @@ class EntityITSpec extends Specification {
         Instant.parse(response.versionOf[0].from) > beforeCreation
         response.versionOf[0].until == null
         Instant.parse(response.versionOf[0].recorded) > beforeCreation
-        response.versionOf[0].reality == 0
     }
 
     def "Create a new entity"() {
@@ -179,6 +179,18 @@ class EntityITSpec extends Specification {
         response.entity.versionOf[0].until == null
     }
 
+    def "Create a relation between entities"() {
+        when:
+        def beforeCreation = Instant.now()
+        Object response1 = newEntity("cONtrOl", "Name1")
+        Object response2 = newEntity("aSSet", "Name2")
+
+        then:
+        true == true
+
+    }
+
+    @Ignore
     def "update an entity"() {
         given:
         def beforeCreation = Instant.now()
@@ -188,7 +200,7 @@ class EntityITSpec extends Specification {
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
 
-        then:
+//        then:
 
     }
 
@@ -198,15 +210,15 @@ class EntityITSpec extends Specification {
 //    }
 
     private Object newEntity(String label, String name) {
-        def anchor = PerpetualEntity.newInstance("label1")
+        def anchor = PerpetualEntity.newInstance()
         def version = anchor.newVersion(name, "Abbr1", Map.of(
                 "keyString", "value1",
                 "keyDate", Instant.parse(testDate),
                 "keyInt", 42,
-                //"keyArray", new String[]{"one", "two", "three"},
+                //FIXME support array properties: "keyArray", new String[]{"one", "two", "three"},
                 "keyDouble", new Double(4.2d)
         ))
-        HttpEntity<EntityDto> request = new HttpEntity<>(new EntityDto(anchor, null, version))
+        HttpEntity<EntityDto> request = new HttpEntity<>(new EntityDto(anchor, version))
         def json = restTemplate.postForObject("/api/v1/entities/${label}", request, ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
         response

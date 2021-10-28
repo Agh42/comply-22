@@ -41,9 +41,6 @@ public class TimedRelation {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant until;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Integer reality = 0;
-
     @CompositeProperty
     @JsonIgnore
     Map<String, Object> dynamicProperties;
