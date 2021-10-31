@@ -10,6 +10,8 @@ import org.springframework.data.neo4j.core.schema.TargetNode;
 
 import java.time.Instant;
 
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+
 /**
  * Facilitates bitemporal storage of entity states.
  *
@@ -28,31 +30,24 @@ public class VersionOf {
 
     @Id
     @GeneratedValue
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     Long id;
 
     @TargetNode
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     EntityVersion entityVersion;
 
-    /**
-     * Actual time when this verison
-     */
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     Instant from;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     Instant until;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Instant recorded;
 
     public static VersionOf relationShipTo(EntityVersion version) {
         return new VersionOf(null,
                 version,
                 Instant.now(),
-                null,
-                Instant.now()
+                null
         );
     }
 }

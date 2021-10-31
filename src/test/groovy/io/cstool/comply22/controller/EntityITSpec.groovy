@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import groovy.json.JsonSlurper
 import io.cstool.comply22.Comply22Application
-import io.cstool.comply22.entity.EntityDto
+import io.cstool.comply22.dto.CreateEntityDto
+import io.cstool.comply22.dto.UpdateEnityDto
 import io.cstool.comply22.entity.PerpetualEntity
+import io.cstool.comply22.entity.Reality
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -179,6 +181,7 @@ class EntityITSpec extends Specification {
         response.entity.versionOf[0].until == null
     }
 
+    @Ignore
     def "Create a relation between entities"() {
         when:
         def beforeCreation = Instant.now()
@@ -200,8 +203,21 @@ class EntityITSpec extends Specification {
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
 
-//        then:
+        // TODO xxx change GET dto to contain just the version. add /history to return the current anchor/versionOfs/version DTO
 
+        // TODO on PUTting the version, follow link to anchor and insert new version, change from/until of last valid
+        //  version (has until:null in this reality)
+
+        // TODO use default reality if none specified as url parameter
+
+        when: "the entity is modified"
+        UpdateEnityDto updateDto = new UpdateEnityDto()
+        updateDto.setEntityId(response.entity.id)
+        updateDto.setReality(Reality.MAINSTREAM)
+        updateDto.setEntityVersion(version)
+
+        then: "a new version was saved"
+        true == true
     }
 
 //    def "remove an entity"() {
@@ -218,7 +234,7 @@ class EntityITSpec extends Specification {
                 //FIXME support array properties: "keyArray", new String[]{"one", "two", "three"},
                 "keyDouble", new Double(4.2d)
         ))
-        HttpEntity<EntityDto> request = new HttpEntity<>(new EntityDto(anchor, version))
+        HttpEntity<CreateEntityDto> request = new HttpEntity<>(new CreateEntityDto(version))
         def json = restTemplate.postForObject("/api/v1/entities/${label}", request, ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
         response

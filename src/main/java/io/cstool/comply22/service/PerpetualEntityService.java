@@ -1,31 +1,43 @@
 package io.cstool.comply22.service;
 
-import io.cstool.comply22.entity.EntityDto;
+import io.cstool.comply22.dto.CreateEntityDto;
 import io.cstool.comply22.entity.PerpetualEntity;
+import io.cstool.comply22.entity.Reality;
+import io.cstool.comply22.repository.ChangeRepository;
+import io.cstool.comply22.repository.EntityVersionRepository;
 import io.cstool.comply22.repository.PerpetualEntityRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNullElse;
+
 @Service
 public class PerpetualEntityService {
 
-    private static final String QUERY = "MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE id(a) = $id " +
-            //"AND 'Control' IN labels(a) " +
-            "WITH a,v,r " +
-            "ORDER BY v.from DESC " +
-            "LIMIT 1 " +
-            "RETURN a, collect(r), collect(v)";
+//    private static final String QUERY = "MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
+//            "WHERE id(a) = $id " +
+//            //"AND 'Control' IN labels(a) " +
+//            "WITH a,v,r " +
+//            "ORDER BY v.from DESC " +
+//            "LIMIT 1 " +
+//            "RETURN a, collect(r), collect(v)";
 
 
     PerpetualEntityRepository entityRepository;
+
+    EntityVersionRepository versionRepository;
+
+    ChangeRepository changeRepository;
 
     Neo4jTemplate template;
 
@@ -34,18 +46,21 @@ public class PerpetualEntityService {
         this.template = template;
     }
 
-    public EntityDto createEntity(String label, EntityDto dto) {
-        // if dto has labels, replace them with path variable:
+    @Transactional
+    public CreateEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
+        timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
+
         var anchor = PerpetualEntity.newInstance(label);
+        anchor = entityRepository.save(anchor);
 
         var version = anchor.newVersion(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
-        anchor = entityRepository.save(anchor);
-        return new EntityDto(
-                anchor,
-                anchor.getVersions().stream().findFirst().orElseThrow());
+        version = versionRepository.save(version);
+        changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
+
+        return new CreateEntityDto(version);
     }
 
     /**

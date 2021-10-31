@@ -11,14 +11,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.neo4j.core.schema.CompositeProperty;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.lang.NonNull;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 
 @Node("Version")
 @Data
@@ -29,16 +31,19 @@ public class EntityVersion {
 
     private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
 
-
     @Id
     @GeneratedValue()
     private Long id;
 
+    @NotNull
+    @Size(max = 255)
+    @NotBlank
     String name;
+
     String abbreviation;
 
     @LastModifiedBy
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     String lastModifiedBy;
 
     /**
@@ -48,6 +53,10 @@ public class EntityVersion {
     @JsonIgnore
     //@JsonSerialize(using = DynPropsSerializer.class, as=Map.class)
     Map<String, Object> dynamicProperties;
+
+    @Relationship(type = "RECORDED_ON")
+    @JsonProperty(access = READ_ONLY)
+    private Change change;
 
     @JsonGetter("dynamicProperties")
     public Map<String,Object> serializeCustomProperties() {
@@ -65,6 +74,6 @@ public class EntityVersion {
         Map<String, Object> map = new HashMap<>();
         map.putAll(properties);
         return new EntityVersion(null, name, abbreviation, null,
-                map);
+                map, new Change());
     }
 }
