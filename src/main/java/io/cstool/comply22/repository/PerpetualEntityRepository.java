@@ -6,10 +6,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
 
+@Transactional(readOnly = true)
 public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEntity, Long>,
     NonDomainResults {
 
@@ -33,7 +35,7 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
     public Optional<PerpetualEntity> findLatestVersion(@Param("label") String label, Long id);
 
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE a.id = $id " +
+            "WHERE id(a) = $id " +
             "AND $label IN labels(a)  " +
             "AND (v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until)) " +
             "WITH a,v,r " +
@@ -55,6 +57,8 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
             "SKIP $skip LIMIT $limit "
     )
     Slice<PerpetualEntity> findAllCurrent(@Param("label") String label, Pageable pageable);
+
+
 
 // all versions for one id
 //    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +

@@ -6,6 +6,7 @@ import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
 import io.cstool.comply22.repository.EntityVersionRepository;
 import io.cstool.comply22.repository.PerpetualEntityRepository;
+import io.cstool.comply22.repository.RealityRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -39,12 +40,22 @@ public class PerpetualEntityService {
 
     ChangeRepository changeRepository;
 
+    RealityRepository realityRepository;
+
     Neo4jTemplate template;
 
     public PerpetualEntityService(PerpetualEntityRepository entityRepository, Neo4jTemplate template) {
         this.entityRepository = entityRepository;
         this.template = template;
     }
+
+//    @PostConstruct
+//    void init() {
+//        var mainstream = realityRepository.findByName(Reality.MAINSTREAM).stream().findFirst();
+//        if (mainstream.isEmpty()) {
+//            realityRepository.save(new Reality(Reality.MAINSTREAM));
+//        }
+//    }
 
     @Transactional
     public CreateEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
@@ -58,6 +69,8 @@ public class PerpetualEntityService {
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
         version = versionRepository.save(version);
+        version = versionRepository.addVersionToEntity(timeline, anchor.getId(), version.getId());
+
         changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
 
         return new CreateEntityDto(version);

@@ -3,7 +3,7 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -18,7 +18,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @Node
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Reality {
 
     public static final String MAINSTREAM = "C-137";
@@ -28,13 +28,16 @@ public class Reality {
     private Long id;
 
     /**
-     * Human readable name for this reality.
+     * Human-readable name for this reality.
      */
-    private String name;
+    private final String name;
 
     @CreatedDate
     Instant beginning;
 
+    /**
+     * Is {@code null} only for mainstream timeline.
+     */
     @Relationship(type = "BRANCH_OF", direction = OUTGOING)
     @JsonProperty(access = READ_ONLY)
     private Reality branchOf;

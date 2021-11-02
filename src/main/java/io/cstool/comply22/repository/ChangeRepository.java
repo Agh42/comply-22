@@ -26,4 +26,6 @@ public interface ChangeRepository extends Neo4jRepository<Change, Long>,
     )
     Change mergeWithTimeline(String timeline, Long changeId);
 
+
+
 }

@@ -21,7 +21,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class UpdateEnityDto {
+public class UpdateEntityDto {
     private Long entityId;
     private String reality;
     private EntityVersion version;

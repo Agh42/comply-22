@@ -32,7 +32,7 @@ public class EntityVersion {
     private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
 
     @Id
-    @GeneratedValue()
+    @GeneratedValue
     private Long id;
 
     @NotNull
@@ -55,8 +55,14 @@ public class EntityVersion {
     Map<String, Object> dynamicProperties;
 
     @Relationship(type = "RECORDED_ON")
-    @JsonProperty(access = READ_ONLY)
+    @JsonIgnore
     private Change change;
+
+    @JsonProperty(access = READ_ONLY)
+    private ChangeRef getChangeRef() {
+        return ChangeRef.of(change);
+    }
+
 
     @JsonGetter("dynamicProperties")
     public Map<String,Object> serializeCustomProperties() {

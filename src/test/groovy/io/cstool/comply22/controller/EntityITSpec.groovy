@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import groovy.json.JsonSlurper
 import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.dto.CreateEntityDto
-import io.cstool.comply22.dto.UpdateEnityDto
+import io.cstool.comply22.dto.UpdateEntityDto
 import io.cstool.comply22.entity.PerpetualEntity
 import io.cstool.comply22.entity.Reality
 import org.springframework.beans.factory.annotation.Autowired
@@ -211,7 +211,7 @@ class EntityITSpec extends Specification {
         // TODO use default reality if none specified as url parameter
 
         when: "the entity is modified"
-        UpdateEnityDto updateDto = new UpdateEnityDto()
+        UpdateEntityDto updateDto = new UpdateEntityDto()
         updateDto.setEntityId(response.entity.id)
         updateDto.setReality(Reality.MAINSTREAM)
         updateDto.setEntityVersion(version)
