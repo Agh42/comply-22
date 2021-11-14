@@ -60,17 +60,21 @@ public class PerpetualEntityService {
     @Transactional
     public CreateEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
         timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
+        timeline = timeline.isBlank() ? Reality.MAINSTREAM : timeline;
 
+        // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
         anchor = entityRepository.save(anchor);
 
+        // insert version:
         var version = anchor.newVersion(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
         version = versionRepository.save(version);
-        version = versionRepository.addVersionToEntity(timeline, anchor.getId(), version.getId());
+        version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId());
 
+        // update reality tree:
         changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
 
         return new CreateEntityDto(version);

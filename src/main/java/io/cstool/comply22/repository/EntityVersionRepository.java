@@ -11,19 +11,32 @@ public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, 
     NonDomainResults {
 
     /**
-     * Finds most recent version of entity in the given timeline, set its "validUntil" timestamp to now
-     * and set "validFrom" on the new node to the same instant.
+     * Finds most recent version of entity in the given timeline, set the "validUntil" timestamp of its pointer to 'now'
+     * and set "validFrom" on the pointer of the new version to the same 'now'.
+     *
+     * Explanation of the query:
+     * <ol>
+     * <li>Find a path from the wanted entity to all versions that have a change on the wanted timeline
+     * <li>From all changes on that path, find the version with "validUntil: null". This is the current version of
+     * the entity in this timeline.
+     * <li>
+     * </ol>
      */
     @Transactional(propagation = REQUIRED)
-    @Query("MATCH p=(a:Entity)<-[:VERSION_OF]-(:Version)-[:RECORDED_ON|NEXT_CHANGE*]->(:Version)<-[:ENDS_WITH]-(r:Reality{name:$timeline}) " +
-            "WHERE id(a) = $perpetualEntityId " +
-            "WITH a,r, [n IN nodes(p) WHERE n:Version AND n.validUntil = null] AS v" +
-            "FOREACH (vtip IN v | SET vtip.validUntil = datetime.transaction()) " +
-            "WITH a,r,v " +
-            "MATCH (nv:Version) " +
-            "WHERE id(nv) = $newVersionId " +
-            "SET nv.validFrom = datetime.transaction() "
+    @Query( "MATCH p = (e:Entity)-[:CURRENT]->(v:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$timeline}) " +
+            "WHERE id(e) = $perpetualEntityId " +
+            "RETURN p "
+            //r:Reality{name:$timeline}
+            //"WITH a,r, [n IN nodes(p) WHERE n:Version AND n.validUntil = null ] AS v" +
+            //   "FOREACH (vtip IN v | SET vtip.validUntil = datetime.transaction()) " + // this will be only one vtip
     )
     // TODO test query
-    EntityVersion addVersionToEntity(String timeline, Long perpetualEntityId, Long newVersionId);
+    EntityVersion mergeVersionWithEntity(String timeline, Long perpetualEntityId, Long newVersionId);
+
+    // move tip forward:
+//    MATCH (r1:Reality {id:"r1"})<-[t:TIP_OF]-(n)
+//    MATCH (c5:Change {id:5})
+//    DELETE t
+//    MERGE (r1)<-[:TIP_OF]-(c5)
+
 }
