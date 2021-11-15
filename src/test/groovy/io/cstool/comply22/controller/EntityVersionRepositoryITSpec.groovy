@@ -3,6 +3,7 @@ package io.cstool.comply22.controller
 import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.entity.PerpetualEntity
 import io.cstool.comply22.repository.EntityVersionRepository
+import io.cstool.comply22.repository.PerpetualEntityRepository
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
@@ -18,7 +19,7 @@ class EntityVersionRepositoryITSpec {
     def "insert a new entity version"() {
         given: "an existing entity version"
         def anchor = PerpetualEntity.newInstance("TestEntity")
-        entityRepository.save(anchor)
+        anchor = entityRepository.save(anchor)
 
         def version1 = anchor.newVersion("version1", "v1", Map.of(
                 "key1", "value1",
@@ -30,7 +31,7 @@ class EntityVersionRepositoryITSpec {
                 "key3", "value3",
                 "key4", "value4"
         ))
-        versionRepository.save(version2)
+        version2 = versionRepository.save(version2)
         version2 = versionRepository.mergeVersionWithEntity(version2)
 
         then: "new version timestamps are set correctly"

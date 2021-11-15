@@ -8,8 +8,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
-import java.time.Instant;
-
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 
 /**
@@ -37,17 +35,9 @@ public class VersionOf {
     @JsonProperty(access = READ_ONLY)
     EntityVersion entityVersion;
 
-    @JsonProperty(access = READ_ONLY)
-    Instant from;
-
-    @JsonProperty(access = READ_ONLY)
-    Instant until;
-
     public static VersionOf relationShipTo(EntityVersion version) {
         return new VersionOf(null,
-                version,
-                Instant.now(),
-                null
+                version
         );
     }
 }

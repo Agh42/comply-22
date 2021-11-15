@@ -6,7 +6,6 @@ import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
 import io.cstool.comply22.repository.EntityVersionRepository;
 import io.cstool.comply22.repository.PerpetualEntityRepository;
-import io.cstool.comply22.repository.RealityRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -40,8 +39,6 @@ public class PerpetualEntityService {
 
     ChangeRepository changeRepository;
 
-    RealityRepository realityRepository;
-
     Neo4jTemplate template;
 
     public PerpetualEntityService(PerpetualEntityRepository entityRepository, Neo4jTemplate template) {
@@ -72,7 +69,8 @@ public class PerpetualEntityService {
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
         version = versionRepository.save(version);
-        version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId());
+        //version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId()); // merge second and later versions
+        version = versionRepository.mergeInitialVersion(timeline, anchor.getId(), version.getId());
 
         // update reality tree:
         changeRepository.mergeWithTimeline(timeline, version.getChange().getId());

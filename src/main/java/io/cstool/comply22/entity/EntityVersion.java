@@ -17,6 +17,7 @@ import org.springframework.lang.NonNull;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +64,14 @@ public class EntityVersion {
         return ChangeRef.of(change);
     }
 
+    @JsonProperty(access = READ_ONLY)
+    Instant from;
+
+    @JsonProperty(access = READ_ONLY)
+    Instant until;
+
+    @JsonProperty(access = READ_ONLY)
+    boolean deleted;
 
     @JsonGetter("dynamicProperties")
     public Map<String,Object> serializeCustomProperties() {
@@ -77,9 +86,8 @@ public class EntityVersion {
 
     public static EntityVersion newInstance(String name, String abbreviation,
                                             @NonNull Map<String, Object> properties) {
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(properties);
+        Map<String, Object> map = new HashMap<>(properties);
         return new EntityVersion(null, name, abbreviation, null,
-                map, new Change());
+                map, new Change(), Instant.now(), null, false);
     }
 }

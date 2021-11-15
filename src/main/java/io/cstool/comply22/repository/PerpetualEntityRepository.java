@@ -24,12 +24,10 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
      * @param id
      * @return
      */
-    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
+    @Query("MATCH (a:Entity) -[r:CURRENT]-> (v:Version) " +
             "WHERE id(a) = $id " +
             "AND $label IN labels(a) " +
             "WITH a,v,r " +
-            "ORDER BY v.from DESC " +
-            "LIMIT 1 " +
             "RETURN a, collect(r), collect(v) "
     )
     public Optional<PerpetualEntity> findLatestVersion(@Param("label") String label, Long id);
@@ -37,21 +35,22 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE id(a) = $id " +
             "AND $label IN labels(a)  " +
-            "AND (v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until)) " +
+            "AND ( v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until) ) " +
             "WITH a,v,r " +
             "RETURN a, collect(r), collect(v)"
     )
     public Optional<PerpetualEntity> findVersionAt(String label, Long id, Instant time);
 
     /**
-     * Find all entities for the present time. Deleted entities will not be included in
+     * Find all entities of the given type for the present time. Deleted entities will not be included in
      * the result.
      *
      * @param pageable
      * @return
      */
-    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
+    @Query("MATCH (a:Entity) -[r:CURRENT]-> (v:Version) " +
             "WHERE $label IN labels(a) " +
+            "AND v.deleted = FALSE " +
             "RETURN a, collect(r), collect(v) " +
             "ORDER BY a.id ASC " +
             "SKIP $skip LIMIT $limit "

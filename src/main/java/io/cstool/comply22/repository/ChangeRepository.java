@@ -14,18 +14,17 @@ public interface ChangeRepository extends Neo4jRepository<Change, Long>,
      * @param changeId
      * @return
      */
-    @Query("MATCH (r:Reality{name:$timeline})-[oew:ENDS_WITH]->(oldtip:Change) " +
-            "WITH r,oew,oldtip " +
-            "DELETE oew " +
+    @Query("MATCH (r:Reality{name:$timeline})<-[oto:TIP_OF]-(oldtip:Change) " +
+            "WITH r,oto,oldtip " +
+            "DELETE oto " +
             "WITH r,oldtip " +
             "MATCH (newtip:Change) " +
             "WHERE id(newtip) = $changeId " +
             "WITH r,oldtip,newtip " +
-            "MERGE (oldtip)-[:NEXT_CHANGE]->(newtip)<-[:ENDS_WITH]-(r) " +
+            "MERGE (oldtip)-[:NEXT]->(newtip)-[:TIP_OF]->(r) " +
             "RETURN newtip"
     )
     Change mergeWithTimeline(String timeline, Long changeId);
-
 
 
 }

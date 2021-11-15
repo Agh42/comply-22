@@ -13,6 +13,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import java.time.Instant;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
 @Node
@@ -46,7 +47,7 @@ public class Reality {
     @JsonProperty(access = READ_ONLY)
     private Change beginsWith;
 
-    @Relationship(type = "ENDS_WITH", direction = OUTGOING)
+    @Relationship(type = "TIP_OF", direction = INCOMING)
     @JsonProperty(access = READ_ONLY)
     private Change tip;
 
