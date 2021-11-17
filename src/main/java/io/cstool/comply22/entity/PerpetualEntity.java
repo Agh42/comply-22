@@ -48,6 +48,14 @@ public class PerpetualEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Set<VersionOf> versionOf = new HashSet<>();
 
+    /**
+     * Pointers to the current version. With multiple timelines, there can be
+     * many current versions: one in each timeline.
+     */
+    @Relationship(type = "CURRENT")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Set<EntityVersion> currentVersion = new HashSet<>();
+
     public static PerpetualEntity newInstance(String label) {
         var entity = new PerpetualEntity();
         entity.setCustomLabel(label);
@@ -61,6 +69,7 @@ public class PerpetualEntity {
     public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version= EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
+        currentVersion.add(version);
         return version;
     }
 

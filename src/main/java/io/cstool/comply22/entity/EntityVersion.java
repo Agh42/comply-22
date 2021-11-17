@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.neo4j.core.schema.*;
-import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -85,8 +85,12 @@ public class EntityVersion {
     }
 
     public static EntityVersion newInstance(String name, String abbreviation,
-                                            @NonNull Map<String, Object> properties) {
-        Map<String, Object> map = new HashMap<>(properties);
+                                            @Nullable Map<String, Object> properties) {
+        Map<String, Object> map;
+        if (properties == null)
+            map = new HashMap<>();
+        else
+            map = new HashMap<>(properties);
         return new EntityVersion(null, name, abbreviation, null,
                 map, new Change(), Instant.now(), null, false);
     }

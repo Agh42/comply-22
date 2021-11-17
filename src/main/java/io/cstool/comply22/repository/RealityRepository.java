@@ -12,9 +12,9 @@ public interface RealityRepository extends Neo4jRepository<Reality, Long>,
 
     Set<Reality> findByName(String name);
 
-    @Query("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{root:TRUE}) " +
+    @Query("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:'ROOT'}) " +
             "WITH r,c " +
-            "MERGE (r)-[:BEGINS_WITH]->(c)")
+            "MERGE (r)-[:BEGINS_WITH]->(c{recorded: datetime.transaction()})")
     void initialize(String timeline);
 
 

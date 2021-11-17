@@ -38,8 +38,14 @@ public class Change {
     @JsonProperty(access = READ_ONLY)
     Instant recorded;
 
-    @Relationship(type = "NEXT_CHANGE", direction = OUTGOING)
+    ChangeType type;
+
+    @Relationship(type = "NEXT", direction = OUTGOING)
     @JsonProperty(access = READ_ONLY)
     private Set<Change> nextChange;
+
+    @Relationship(type = "TIP_OF", direction = OUTGOING)
+    @JsonProperty(access = READ_ONLY)
+    private Set<Reality> tipOf;
 
 }

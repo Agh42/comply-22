@@ -1,6 +1,7 @@
 package io.cstool.comply22.service;
 
-import io.cstool.comply22.dto.CreateEntityDto;
+import io.cstool.comply22.dto.request.CreateEntityDto;
+import io.cstool.comply22.dto.response.CreatedEntityDto;
 import io.cstool.comply22.entity.PerpetualEntity;
 import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
@@ -41,21 +42,16 @@ public class PerpetualEntityService {
 
     Neo4jTemplate template;
 
-    public PerpetualEntityService(PerpetualEntityRepository entityRepository, Neo4jTemplate template) {
+    public PerpetualEntityService(PerpetualEntityRepository entityRepository, EntityVersionRepository versionRepository,
+                                  ChangeRepository changeRepository, Neo4jTemplate template) {
         this.entityRepository = entityRepository;
+        this.versionRepository = versionRepository;
+        this.changeRepository = changeRepository;
         this.template = template;
     }
 
-//    @PostConstruct
-//    void init() {
-//        var mainstream = realityRepository.findByName(Reality.MAINSTREAM).stream().findFirst();
-//        if (mainstream.isEmpty()) {
-//            realityRepository.save(new Reality(Reality.MAINSTREAM));
-//        }
-//    }
-
     @Transactional
-    public CreateEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
+    public CreatedEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
         timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
         timeline = timeline.isBlank() ? Reality.MAINSTREAM : timeline;
 
@@ -70,12 +66,12 @@ public class PerpetualEntityService {
                 dto.getVersion().getDynamicProperties());
         version = versionRepository.save(version);
         //version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId()); // merge second and later versions
-        version = versionRepository.mergeInitialVersion(timeline, anchor.getId(), version.getId());
 
         // update reality tree:
-        changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
+        var change = changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
+        version.setChange(change);
 
-        return new CreateEntityDto(version);
+        return new CreatedEntityDto(version);
     }
 
     /**

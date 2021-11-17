@@ -22,7 +22,7 @@ public interface ChangeRepository extends Neo4jRepository<Change, Long>,
             "WHERE id(newtip) = $changeId " +
             "WITH r,oldtip,newtip " +
             "MERGE (oldtip)-[:NEXT]->(newtip)-[:TIP_OF]->(r) " +
-            "RETURN newtip"
+            "RETURN newtip,collect(r)"
     )
     Change mergeWithTimeline(String timeline, Long changeId);
 

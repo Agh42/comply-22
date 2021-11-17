@@ -1,4 +1,4 @@
-package io.cstool.comply22.dto;
+package io.cstool.comply22.dto.request;
 
 import io.cstool.comply22.entity.EntityVersion;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,6 @@ import lombok.Data;
  *
  * The changes are not overwritten, but they won't be merged and you may not be
  * aware of changes that were made.
- * TODO implement optimistic locking
  */
 @Data
 @AllArgsConstructor

@@ -41,4 +41,5 @@ public class NonDomainResultsImpl implements NonDomainResults {
                 .bindAll(params)
                 .run();
     }
+
 }

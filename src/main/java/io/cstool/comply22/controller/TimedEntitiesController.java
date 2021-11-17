@@ -1,6 +1,7 @@
 package io.cstool.comply22.controller;
 
-import io.cstool.comply22.dto.CreateEntityDto;
+import io.cstool.comply22.dto.request.CreateEntityDto;
+import io.cstool.comply22.dto.response.CreatedEntityDto;
 import io.cstool.comply22.entity.PerpetualEntity;
 import io.cstool.comply22.service.PerpetualEntityService;
 import org.springframework.data.domain.PageRequest;
@@ -28,11 +29,10 @@ public class TimedEntitiesController {
     }
 
     @PostMapping("/{label}")
-    public CreateEntityDto create(@PathVariable @NotEmpty String label,
-                                  @RequestParam String timeline,
-                                  @RequestBody @Valid CreateEntityDto dto) {
-        var result = entityService.createEntity(capitalize(label), timeline, dto);
-        return result;
+    public CreatedEntityDto create(@PathVariable @NotEmpty String label,
+                                   @RequestParam(required = false) String timeline,
+                                   @RequestBody @Valid CreateEntityDto dto) {
+        return entityService.createEntity(capitalize(label), timeline, dto);
     }
 
     @DeleteMapping("/{label}")

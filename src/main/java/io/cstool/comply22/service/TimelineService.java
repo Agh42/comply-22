@@ -17,7 +17,7 @@ public class TimelineService {
                 reality -> log.info(String.format("Mainstream timeline was found. ID: %s, Name: %s, Begins: %s",
                         reality.getId(),
                         reality.getName(),
-                        reality.getBeginning())),
+                        reality.getBeginsWith().getRecorded())),
                 () -> {
                     realityRepository.initialize(Reality.MAINSTREAM);
                     log.info("Mainstream timeline was created.");

@@ -11,9 +11,12 @@ public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, 
     NonDomainResults {
 
     /**
-     * Finds most recent version of entity in the given timeline, set the "validUntil" timestamp of its pointer to 'now'
-     * and set "validFrom" on the pointer of the new version to the same 'now'. Then move the current-pointer of
-     * the entity to the new version.
+     * <ul>
+     * <li>Find most recent version of entity in the given timeline.
+     * <li>Set the "validUntil" timestamp of its pointer to 'now'.
+     * <li>Set "validFrom" on the pointer of the new version to the same 'now'.
+     * <li>Then move the current-pointer of the entity to the new version.
+     * </ul>
      */
     @Transactional(propagation = REQUIRED)
     @Query("MATCH p = (e:Entity)-[c:CURRENT]->(old:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$reality}) " +
@@ -26,7 +29,5 @@ public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, 
             "MERGE (e)-[:CURRENT]->(nv) ")
     EntityVersion mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId);
 
-    @Transactional(propagation = REQUIRED)
-    @Query("")
-    EntityVersion mergeInitialVersion(String timeline, Long entityId, Long versionId);
+
 }
