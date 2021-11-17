@@ -2,9 +2,7 @@ package io.cstool.comply22.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -25,19 +23,26 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @Data
 @AllArgsConstructor(access = PACKAGE)
 @NoArgsConstructor(access = PACKAGE)
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Change {
     @Id
     @GeneratedValue()
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private Long id;
 
     @LastModifiedBy
     @JsonProperty(access = READ_ONLY)
+    @ToString.Include
     String lastModifiedBy;
 
     @CreatedDate
     @JsonProperty(access = READ_ONLY)
+    @ToString.Include
     Instant recorded;
 
+    @EqualsAndHashCode.Include
     private ChangeType type;
 
     @Relationship(type = "NEXT", direction = OUTGOING)

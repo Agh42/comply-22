@@ -3,7 +3,9 @@ package io.cstool.comply22.service
 import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.dto.request.CreateEntityDto
 import io.cstool.comply22.entity.PerpetualEntity
+import io.cstool.comply22.entity.Reality
 import io.cstool.comply22.repository.ChangeRepository
+import io.cstool.comply22.repository.RealityRepository
 import io.cstool.comply22.service.PerpetualEntityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -19,12 +21,18 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 class EntityServiceITSpec extends Specification {
 
     @Autowired
-    PerpetualEntityService entityService;
+    PerpetualEntityService entityService
 
     @Autowired
-    ChangeRepository changeRepository;
+    ChangeRepository changeRepository
+
+    @Autowired
+    RealityRepository realityRepository
 
     def "insert a new entity"() {
+        given: "the mainstream timeline"
+        def mainstream = realityRepository.findByName(Reality.MAINSTREAM).first()
+
         when: "a new entity is saved"
         def beforeSave = Instant.now()
         def entity = PerpetualEntity.newInstance("control")
@@ -43,6 +51,7 @@ class EntityServiceITSpec extends Specification {
             recorded < afterSave
             nextChange == null
             tipOf != null
+            tipOf == mainstream
         }
         with(result) {
             from > beforeSave

@@ -1,10 +1,7 @@
 package io.cstool.comply22.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -18,6 +15,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Reality {
 
@@ -25,6 +23,7 @@ public class Reality {
 
     @Id
     @GeneratedValue
+    @ToString.Include
     @EqualsAndHashCode.Include
     private Long id;
 
@@ -32,7 +31,7 @@ public class Reality {
      * Human-readable name for this reality.
      */
     @JsonProperty(access = READ_ONLY)
-    @EqualsAndHashCode.Include
+    @ToString.Include
     private String name;
 
     /**
@@ -52,6 +51,4 @@ public class Reality {
     @JsonProperty(access = READ_ONLY)
     // TODO replace with change ref?
     private Change tip;
-
-
 }

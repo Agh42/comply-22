@@ -76,16 +76,15 @@ public class PerpetualEntityService {
         // update reality tree:
         var changeId = version.getChange().getId();
         changeRepository.mergeWithTimeline(timeline, changeId);
-        version.setChange(
-                changeRepository.findById(changeId).orElseThrow()
-        );
+
+        anchor = entityRepository.findById(anchor.getId()).orElseThrow();
+        version = anchor.getVersion(version.getId()).orElseThrow();
         log.debug("Saved change: {}", version.getChange());
         return new CreatedEntityDto(version);
     }
 
     /**
      * Find the latest version of an entity.
-     * @return
      */
     public PerpetualEntity find(String label, Long id) {
         label = capitalize(label);

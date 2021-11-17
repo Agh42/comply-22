@@ -1,10 +1,12 @@
 package io.cstool.comply22.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.neo4j.core.Neo4jClient;
 
 import java.util.Collection;
 import java.util.Map;
 
+@Slf4j
 public class NonDomainResultsImpl implements NonDomainResults {
 
     private final Neo4jClient neo4jClient;
@@ -35,10 +37,11 @@ public class NonDomainResultsImpl implements NonDomainResults {
     }
 
     private void execute(String query, Map<String, Object> params) {
-        this.neo4jClient
+        var resultSummary = this.neo4jClient
                 .query(query)
                 .bindAll(params)
-                .fetch();
+                .run();
+        log.debug(resultSummary.toString());
     }
 
     @Override
