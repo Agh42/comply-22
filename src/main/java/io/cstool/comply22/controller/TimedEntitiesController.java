@@ -7,7 +7,6 @@ import io.cstool.comply22.service.PerpetualEntityService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +31,12 @@ public class TimedEntitiesController {
     public CreatedEntityDto create(@PathVariable @NotEmpty String label,
                                    @RequestParam(required = false) String timeline,
                                    @RequestBody @Valid CreateEntityDto dto) {
-        return entityService.createEntity(capitalize(label), timeline, dto);
+        return entityService.createEntity(label, timeline, dto);
     }
 
     @DeleteMapping("/{label}")
     public void deleteAll(@PathVariable @NotEmpty  String label) {
-        entityService.deleteAll(capitalize(label));
+        entityService.deleteAll(label);
     }
 
     @GetMapping("/{label}")
@@ -57,9 +56,9 @@ public class TimedEntitiesController {
                                             String sortOrder) {
 
         if (sortOrder.equalsIgnoreCase("asc"))
-            return entityService.findAllCurrent(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).ascending()));
+            return entityService.findAllCurrent(label, PageRequest.of(page, size, Sort.by(sortBy).ascending()));
 
-        return entityService.findAllCurrent(capitalize(label), PageRequest.of(page, size, Sort.by(sortBy).descending()));
+        return entityService.findAllCurrent(label, PageRequest.of(page, size, Sort.by(sortBy).descending()));
 
     }
 
@@ -83,10 +82,10 @@ public class TimedEntitiesController {
     ) {
         if (timestamp != null) {
             // get point in time:
-            return entityService.find(capitalize(label), id, timestamp).orElse(null);
+            return entityService.find(label, id, timestamp).orElse(null);
         } else {
             // get latest:
-            return entityService.find(capitalize(label), id);
+            return entityService.find(label, id);
         }
     }
 
@@ -95,7 +94,5 @@ public class TimedEntitiesController {
 //    @PutMapping("/{id}")
 //    public void update(@RequestBody @Valid TimedEntityVersion)
 
-    private String capitalize(String label) {
-        return StringUtils.capitalize(label.toLowerCase());
-    }
+    
 }

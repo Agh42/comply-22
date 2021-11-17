@@ -7,12 +7,14 @@ import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
 import io.cstool.comply22.repository.EntityVersionRepository;
 import io.cstool.comply22.repository.PerpetualEntityRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -23,6 +25,7 @@ import java.util.Set;
 import static java.util.Objects.requireNonNullElse;
 
 @Service
+@Slf4j
 public class PerpetualEntityService {
 
 //    private static final String QUERY = "MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
@@ -52,25 +55,31 @@ public class PerpetualEntityService {
 
     @Transactional
     public CreatedEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
+        label = capitalize(label);
         timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
         timeline = timeline.isBlank() ? Reality.MAINSTREAM : timeline;
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
-        anchor = entityRepository.save(anchor);
-
-        // insert version:
         var version = anchor.newVersion(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
+        anchor = entityRepository.save(anchor);
+        log.debug("Saved entity: {}", anchor);
+
+        // insert version:
         version = versionRepository.save(version);
+        log.debug("Saved version: {}", version);
         //version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId()); // merge second and later versions
 
         // update reality tree:
-        var change = changeRepository.mergeWithTimeline(timeline, version.getChange().getId());
-        version.setChange(change);
-
+        var changeId = version.getChange().getId();
+        changeRepository.mergeWithTimeline(timeline, changeId);
+        version.setChange(
+                changeRepository.findById(changeId).orElseThrow()
+        );
+        log.debug("Saved change: {}", version.getChange());
         return new CreatedEntityDto(version);
     }
 
@@ -79,6 +88,7 @@ public class PerpetualEntityService {
      * @return
      */
     public PerpetualEntity find(String label, Long id) {
+        label = capitalize(label);
         Map<String,Object> params = Map.of("customlabel", label,
                 "id", id);
         // FIXME custom labels not filled:
@@ -88,14 +98,21 @@ public class PerpetualEntityService {
     }
 
     public Optional<PerpetualEntity> find(String label, Long id, Instant timestamp) {
+        label = capitalize(label);
         return entityRepository.findVersionAt(label, id, timestamp);
     }
 
     public Slice<PerpetualEntity> findAllCurrent(String label, Pageable pageable) {
+        label = capitalize(label);
         return entityRepository.findAllCurrent(label, pageable);
     }
 
     public void deleteAll(String label) {
+        label = capitalize(label);
         entityRepository.deleteAllByLabel(label);
+    }
+
+    private String capitalize(String label) {
+        return StringUtils.capitalize(label.toLowerCase());
     }
 }

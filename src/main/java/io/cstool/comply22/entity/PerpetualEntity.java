@@ -3,6 +3,7 @@ package io.cstool.comply22.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.cstool.comply22.entity.relations.VersionOf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.neo4j.core.schema.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
 @Node("Entity")
@@ -41,11 +43,11 @@ public class PerpetualEntity {
 
     // dynamic relationships:
     @Relationship
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     private Map<String, TimedRelation> dynamicRelationships = new HashMap<>();
 
     @Relationship(type = "VERSION_OF", direction = INCOMING)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = READ_ONLY)
     private Set<VersionOf> versionOf = new HashSet<>();
 
     /**
@@ -53,8 +55,13 @@ public class PerpetualEntity {
      * many current versions: one in each timeline.
      */
     @Relationship(type = "CURRENT")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Set<EntityVersion> currentVersion = new HashSet<>();
+    @JsonIgnore
+    private EntityVersion currentVersion;
+
+    @JsonProperty(access = READ_ONLY)
+    private EntityVersionRef getCurrentVersionRef() {
+        return EntityVersionRef.of(currentVersion);
+    }
 
     public static PerpetualEntity newInstance(String label) {
         var entity = new PerpetualEntity();
@@ -69,7 +76,7 @@ public class PerpetualEntity {
     public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version= EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
-        currentVersion.add(version);
+        currentVersion = version;
         return version;
     }
 

@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static io.cstool.comply22.entity.Change.ChangeType.ROOT;
+
 @Service
 @Slf4j
 public class TimelineService {
@@ -19,7 +21,7 @@ public class TimelineService {
                         reality.getName(),
                         reality.getBeginsWith().getRecorded())),
                 () -> {
-                    realityRepository.initialize(Reality.MAINSTREAM);
+                    realityRepository.initialize(Reality.MAINSTREAM, ROOT.name());
                     log.info("Mainstream timeline was created.");
                 }
         );

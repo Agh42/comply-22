@@ -11,4 +11,7 @@ public interface NonDomainResults {
 
     @Transactional
     void deleteAllByLabel(String label);
+
+    @Transactional
+    void mergeWithTimeline(String timeline, Long changeId);
 }

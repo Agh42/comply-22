@@ -30,11 +30,11 @@ public class TimedRelation {
     @JsonIgnore
     private PerpetualEntity targetNode;
 
-    private EntityRef target;
+    private PerpetualEntityRef target;
 
     @JsonProperty
-    public EntityRef getTarget() {
-        return EntityRef.of(targetNode);
+    public PerpetualEntityRef getTarget() {
+        return PerpetualEntityRef.of(targetNode);
     }
 
     @JsonProperty(access = READ_ONLY)

@@ -40,14 +40,17 @@ public class Reality {
      */
     @Relationship(type = "BRANCH_OF", direction = OUTGOING)
     @JsonProperty(access = READ_ONLY)
+    // TODO replace with change ref?
     private Reality branchOf;
 
     @Relationship(type = "BEGINS_WITH", direction = OUTGOING)
     @JsonProperty(access = READ_ONLY)
+    // TODO replace with change ref?
     private Change beginsWith;
 
     @Relationship(type = "TIP_OF", direction = INCOMING)
     @JsonProperty(access = READ_ONLY)
+    // TODO replace with change ref?
     private Change tip;
 
 

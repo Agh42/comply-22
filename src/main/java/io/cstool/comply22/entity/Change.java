@@ -1,5 +1,6 @@
 package io.cstool.comply22.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,6 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.Instant;
-import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static lombok.AccessLevel.PACKAGE;
@@ -38,14 +38,38 @@ public class Change {
     @JsonProperty(access = READ_ONLY)
     Instant recorded;
 
-    ChangeType type;
+    private ChangeType type;
 
     @Relationship(type = "NEXT", direction = OUTGOING)
+    @JsonIgnore
+    private Change nextChange;
+
     @JsonProperty(access = READ_ONLY)
-    private Set<Change> nextChange;
+    private ChangeRef getNextChangeRef() {
+        return ChangeRef.of(nextChange);
+    }
 
     @Relationship(type = "TIP_OF", direction = OUTGOING)
-    @JsonProperty(access = READ_ONLY)
-    private Set<Reality> tipOf;
+    @JsonIgnore
+    private Reality tipOf;
 
+    @JsonProperty(access = READ_ONLY)
+    private RealityRef getTipOfRef() {
+        return RealityRef.of(tipOf);
+    }
+
+    public enum ChangeType {
+        /**
+         * The mainstream timeline starts with one node of type ROOT. There is exactly one node of type in the entire
+         * reality tree.
+         */
+        ROOT,
+
+        /**
+         * CRUD types used for entity version changes:
+         */
+        INSERT,
+        UPDATE,
+        DELETE
+    }
 }
