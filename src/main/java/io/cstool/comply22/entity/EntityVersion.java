@@ -39,13 +39,14 @@ public class EntityVersion {
     @NotNull
     @Size(max = 255)
     @NotBlank
-    String name;
+    private String name;
 
-    String abbreviation;
+    @Size(max=255)
+    private String abbreviation;
 
     @LastModifiedBy
     @JsonProperty(access = READ_ONLY)
-    String lastModifiedBy;
+    private String lastModifiedBy;
 
     /**
      * Dynamic properties.
@@ -53,25 +54,25 @@ public class EntityVersion {
     @CompositeProperty
     @JsonIgnore
     //@JsonSerialize(using = DynPropsSerializer.class, as=Map.class)
-    Map<String, Object> dynamicProperties;
+    private Map<String, Object> dynamicProperties;
 
     @Relationship(type = "RECORDED_ON")
     @JsonIgnore
     private Change change;
 
-    @JsonProperty(access = READ_ONLY)
+    @JsonGetter("change")
     private ChangeRef getChangeRef() {
         return ChangeRef.of(change);
     }
 
     @JsonProperty(access = READ_ONLY)
-    Instant from;
+    private Instant from;
 
     @JsonProperty(access = READ_ONLY)
-    Instant until;
+    private Instant until;
 
     @JsonProperty(access = READ_ONLY)
-    boolean deleted;
+    private boolean deleted;
 
     @JsonGetter("dynamicProperties")
     public Map<String,Object> serializeCustomProperties() {

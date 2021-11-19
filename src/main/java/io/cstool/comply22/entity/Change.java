@@ -1,5 +1,6 @@
 package io.cstool.comply22.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -34,22 +35,22 @@ public class Change {
 
     @LastModifiedBy
     @JsonProperty(access = READ_ONLY)
-    @ToString.Include
-    String lastModifiedBy;
+    private String lastModifiedBy;
 
     @CreatedDate
     @JsonProperty(access = READ_ONLY)
     @ToString.Include
     Instant recorded;
 
-    @EqualsAndHashCode.Include
-    private ChangeType type;
+    @ToString.Include
+    @JsonProperty(access = READ_ONLY)
+    private String type;
 
     @Relationship(type = "NEXT", direction = OUTGOING)
     @JsonIgnore
     private Change nextChange;
 
-    @JsonProperty(access = READ_ONLY)
+    @JsonGetter("next")
     private ChangeRef getNextChangeRef() {
         return ChangeRef.of(nextChange);
     }
@@ -58,23 +59,25 @@ public class Change {
     @JsonIgnore
     private Reality tipOf;
 
-    @JsonProperty(access = READ_ONLY)
-    private RealityRef getTipOfRef() {
+
+    @JsonGetter("tipOf")
+    public RealityRef getTipOfRef() {
         return RealityRef.of(tipOf);
     }
 
-    public enum ChangeType {
+
+    public static class ChangeType {
         /**
          * The mainstream timeline starts with one node of type ROOT. There is exactly one node of type in the entire
          * reality tree.
          */
-        ROOT,
+        public static final String ROOT = "ROOT";
 
         /**
          * CRUD types used for entity version changes:
          */
-        INSERT,
-        UPDATE,
-        DELETE
+        public static final String INSERT = "INSERT";
+        public static final String UPDATE = "UPDATE";
+        public static final String DELETE = "DELETE";
     }
 }

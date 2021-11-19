@@ -7,6 +7,8 @@ public class ChangeRef {
     Long id;
 
     public static ChangeRef of(Change change) {
+        if (change == null)
+            return null;
         return new ChangeRef(change.getId());
     }
 }

@@ -19,6 +19,7 @@ import spock.lang.Specification
 
 import java.time.Instant
 
+import static io.cstool.comply22.entity.Change.ChangeType.INSERT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 @SpringBootTest(classes = Comply22Application.class, webEnvironment = RANDOM_PORT)
@@ -162,22 +163,43 @@ class EntityRestTestITSpec extends Specification {
     def "Create a new entity"() {
         when:
         def beforeCreation = Instant.now()
-        Object response = newEntity("cONtrOl", "Name1")
+        Object version = newEntity("cONtrOl", "Name1").version
 
         then:
-//        response.entity.id != null
-//        response.entity.customLabels == ["Control"]
+        version.name == "Name1"
+        version.id != null
+        version.abbreviation == "Abbr1"
 
-        response.version.name == "Name1"
-        response.version.id != null
-        response.version.dynamicProperties.keyString == "value1"
-        response.version.dynamicProperties.keyDate == testDate
-        response.version.dynamicProperties.keyInt == 42
-        response.version.dynamicProperties.keyDouble == 4.2
+        version.dynamicProperties.keyString == "value1"
+        version.dynamicProperties.keyDate == testDate
+        version.dynamicProperties.keyInt == 42
+        version.dynamicProperties.keyDouble == 4.2
 
-        Instant.parse(response.entity.versionOf[0].from) < Instant.now()
-        Instant.parse(response.entity.versionOf[0].from) > beforeCreation
-        response.entity.versionOf[0].until == null
+        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) > beforeCreation
+        version.until == null
+        (!version.deleted)
+
+        version.change != null
+        version.change.id > 0
+
+        when: "retreive the made change"
+        def json = restTemplate.getForObject(
+                String.format("/api/v1/timelines/%s", version.change.id),
+                JsonNode)
+        def changeResponse = jsonSlurper.parseText(json.toString())
+
+        then: "the change was created correctly"
+        with(changeResponse) {
+            id > 0
+            type == INSERT
+            Instant.parse(recorded) > beforeCreation
+            Instant.parse(recorded) < Instant.now()
+            nextChange == null
+            tipOf != null
+        }
+
+
     }
 
     @Ignore
@@ -196,7 +218,7 @@ class EntityRestTestITSpec extends Specification {
     def "update an entity"() {
         given:
         def beforeCreation = Instant.now()
-        def dto = newEntity("Control")
+        def dto = newEntity("Control", "MyControl")
         Long id = dto.entity.id
         def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
                 ObjectNode.class)

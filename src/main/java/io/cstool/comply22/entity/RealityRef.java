@@ -7,6 +7,8 @@ public class RealityRef {
     Long id;
 
     public static RealityRef of(Reality reality) {
+        if (reality==null)
+            return null;
         return new RealityRef(reality.getId());
     }
 }

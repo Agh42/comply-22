@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
 import static java.util.Objects.requireNonNullElse;
 
 @Service
@@ -65,6 +66,7 @@ public class PerpetualEntityService {
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
+        version.getChange().setType(INSERT);
         anchor = entityRepository.save(anchor);
         log.debug("Saved entity: {}", anchor);
 
