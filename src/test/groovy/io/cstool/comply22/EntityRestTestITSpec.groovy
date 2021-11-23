@@ -91,47 +91,31 @@ class EntityRestTestITSpec extends Specification {
         response.empty == true
     }
 
-//    def "Get specific version"() {
-//
-//    }
+    @Ignore
+    def "Get version at point in time"() {
+        given:
+        def beforeCreation = Instant.now()
+        def entity = newEntity()
+        String id = entity.entity.id
+        def beforeChange = Instant.now()
+        // TODO update, creating new version
+        def afterChange = Instant.now()
 
-//    def "Get related entities at point in time"() 
-//    def "Get related entities at current point in time"() 
-//    def "Remove relation to another entity"()
-//    def "Add relation to another entity"()
-//    def "Update a relation's attributes"()
-//    def "Get current relation attributes"()
-//    def "Get relation attributes at point in time"()
+        when: "get the last still valid version as of now"
+        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + Instant.now().toString(),
+                ObjectNode.class)
+        def response = jsonSlurper.parseText(json.toString())
 
-//  def "Create alternate reality from now"()
-//  def "Create alternate reality from point in time"()
-//  def "Create alternate reality from alternate reality"()
-//  def "Delete alternate reality"()
+        then: "the version is retrieved"
+        response.entity.id != null
+        response.entity.labels == ["Label1", "Label2"]
 
-//    def "Get version at point in time"() {
-//        given:
-//        def beforeCreation = Instant.now()
-//        def entity = newEntity()
-//        String id = entity.entity.id
-//        def beforeChange = Instant.now()
-//        // TODO update, creating new version
-//        def afterChange = Instant.now()
-//
-//        when: "get the last still valid version as of now"
-//        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + Instant.now().toString(),
-//                ObjectNode.class)
-//        def response = jsonSlurper.parseText(json.toString())
-//
-//        then: "the version is retrieved"
-//        response.entity.id != null
-//        response.entity.labels == ["Label1", "Label2"]
-//
-//        response.version.name == "Name1"
-//        response.version.dynamicProperties.keyString == "value1"
-//        response.version.dynamicProperties.keyDate == testDate
-//        response.version.dynamicProperties.keyInt == 42
-//        response.version.dynamicProperties.keyDouble == 4.2
-//    }
+        response.version.name == "Name1"
+        response.version.dynamicProperties.keyString == "value1"
+        response.version.dynamicProperties.keyDate == testDate
+        response.version.dynamicProperties.keyInt == 42
+        response.version.dynamicProperties.keyDouble == 4.2
+    }
 
     def "Get latest version of an entity"() {
         given:
@@ -143,21 +127,25 @@ class EntityRestTestITSpec extends Specification {
         def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
+        def version = response.version
 
         then:
-        response.id != null
-        response.customLabels == ["Control"]
-        response.versionOf[0].entityVersion.name == "Name1"
-        response.versionOf[0].entityVersion.dynamicProperties.keyString == "value1"
-        response.versionOf[0].entityVersion.dynamicProperties.keyDate == testDate
-        response.versionOf[0].entityVersion.dynamicProperties.keyInt == 42
-        response.versionOf[0].entityVersion.dynamicProperties.keyDouble == 4.2
-        // TODO support arrays (currently only first value will be saved)
-        //response.version.dynamicProperties.keyArray == ["one", "two", "three"]
-        Instant.parse(response.versionOf[0].from) < Instant.now()
-        Instant.parse(response.versionOf[0].from) > beforeCreation
-        response.versionOf[0].until == null
-        Instant.parse(response.versionOf[0].recorded) > beforeCreation
+        version.name == "Name1"
+        version.id != null
+        version.abbreviation == "Abbr1"
+
+        version.dynamicProperties.keyString == "value1"
+        version.dynamicProperties.keyDate == testDate
+        version.dynamicProperties.keyInt == 42
+        version.dynamicProperties.keyDouble == 4.2
+
+        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) > beforeCreation
+        version.until == null
+        (!version.deleted)
+
+        version.change != null
+        version.change.id > 0
     }
 
     def "Create a new entity"() {
@@ -183,7 +171,7 @@ class EntityRestTestITSpec extends Specification {
         version.change != null
         version.change.id > 0
 
-        when: "retreive the made change"
+        when: "retrieve the change that was made"
         def json = restTemplate.getForObject(
                 String.format("/api/v1/timelines/%s", version.change.id),
                 JsonNode)
@@ -214,7 +202,6 @@ class EntityRestTestITSpec extends Specification {
 
     }
 
-    @Ignore
     def "update an entity"() {
         given:
         def beforeCreation = Instant.now()
@@ -224,12 +211,10 @@ class EntityRestTestITSpec extends Specification {
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
 
-        // TODO xxx change GET dto to contain just the version. add /history to return the current anchor/versionOfs/version DTO
-
-        // TODO on PUTting the version, follow link to anchor and insert new version, change from/until of last valid
+        //  add /history to return the current anchor/versionOfs/version DTO
+        // TODO on PUTting the version, follow link to anchor and insert new version,
+        //  change from/until of last valid
         //  version (has until:null in this reality)
-
-        // TODO use default reality if none specified as url parameter
 
         when: "the entity is modified"
         UpdateEntityDto updateDto = new UpdateEntityDto()
@@ -241,10 +226,27 @@ class EntityRestTestITSpec extends Specification {
         true == true
     }
 
-//    def "remove an entity"() {
-//        // sets "until" on last version to now
-//        // sets "until" on all incoming relations to now
-//    }
+    @Ignore
+    def "remove an entity"() {
+        // sets "until" on last version to now
+        // sets "until" on all incoming relations to now
+    }
+
+    @Ignore def "Get specific version"() {}
+    @Ignore def "Get related entities at point in time"() {}
+    @Ignore def "Get related entities at current point in time"(){}
+    @Ignore def "Remove relation to another entity"(){}
+    @Ignore def "Add relation to another entity"(){}
+    @Ignore def "Update a relation's attributes"(){}
+    @Ignore def "Get current relation attributes"(){}
+    @Ignore def "Get relation attributes at point in time"(){}
+    @Ignore def "Create alternate reality from now"(){}
+    @Ignore def "Create alternate reality from point in time"(){}
+    @Ignore def "Create alternate reality from alternate reality"(){}
+    @Ignore def "Updating a past version creates a new timeline"(){}
+    @Ignore def "Cannot specify past time for mainstream reality"(){}
+    @Ignore def "Delete alternate reality"(){}
+
 
     private Object newEntity(String label, String name) {
         def anchor = PerpetualEntity.newInstance()

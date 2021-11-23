@@ -16,12 +16,12 @@ public class NonDomainResultsImpl implements NonDomainResults {
     }
 
     @Override
-    public Collection<String> findLabelsForNode(Long id) {
-        Map<String, Object> params = Map.of("id", id);
+    public Collection<String> findLabelsForNode(Long perpetualId) {
+        Map<String, Object> params = Map.of("perpetualId", perpetualId);
         var labels = this.neo4jClient
                 .query("" +
                         "MATCH (a:Entity) " +
-                        "WHERE id(a) = $id " +
+                        "WHERE id(a) = $perpetualId " +
                         "RETURN labels(a) as labels"
                 )
                 .bindAll(params)

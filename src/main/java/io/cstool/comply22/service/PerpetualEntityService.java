@@ -1,8 +1,10 @@
 package io.cstool.comply22.service;
 
 import io.cstool.comply22.dto.request.CreateEntityDto;
-import io.cstool.comply22.dto.response.CreatedEntityDto;
+import io.cstool.comply22.dto.response.EntityVersionDto;
+import io.cstool.comply22.entity.EntityVersion;
 import io.cstool.comply22.entity.PerpetualEntity;
+import io.cstool.comply22.entity.PerpetualEntityRef;
 import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
 import io.cstool.comply22.repository.EntityVersionRepository;
@@ -19,11 +21,8 @@ import org.springframework.util.StringUtils;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
-import static java.util.Objects.requireNonNullElse;
 
 @Service
 @Slf4j
@@ -55,10 +54,10 @@ public class PerpetualEntityService {
     }
 
     @Transactional
-    public CreatedEntityDto createEntity(@NotNull String label, @Nullable String timeline, CreateEntityDto dto) {
+    public EntityVersionDto createEntity(@NotNull String label, @Nullable String timeline,
+                                         CreateEntityDto dto) {
         label = capitalize(label);
-        timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
-        timeline = timeline.isBlank() ? Reality.MAINSTREAM : timeline;
+        timeline = Reality.timeLineOrDefault(timeline);
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
@@ -82,25 +81,29 @@ public class PerpetualEntityService {
         anchor = entityRepository.findById(anchor.getId()).orElseThrow();
         version = anchor.getVersion(version.getId()).orElseThrow();
         log.debug("Saved change: {}", version.getChange());
-        return new CreatedEntityDto(version);
+        return new EntityVersionDto(new PerpetualEntityRef(anchor.getId()), version);
     }
 
     /**
      * Find the latest version of an entity.
      */
-    public PerpetualEntity find(String label, Long id) {
+    public EntityVersion find(String label, String timeline, Long perpetualId) {
         label = capitalize(label);
         Map<String,Object> params = Map.of("customlabel", label,
-                "id", id);
+                "id", perpetualId);
         // FIXME custom labels not filled:
-        var entity = entityRepository.findLatestVersion(label, id).orElseThrow();
-        entity.setCustomLabels(Set.copyOf(entityRepository.findLabelsForNode(id)));
-        return entity;
+        //entity.setCustomLabels(Set.copyOf(entityRepository.findLabelsForNode(perpetualId)));
+        return versionRepository.findLatestVersion(label, timeline,
+                perpetualId).orElseThrow();
     }
 
-    public Optional<PerpetualEntity> find(String label, Long id, Instant timestamp) {
+    /**
+     * Find version at specific timestamp
+     */
+    public EntityVersion find(String label, String timeline, Long perpetualId, Instant timestamp) {
         label = capitalize(label);
-        return entityRepository.findVersionAt(label, id, timestamp);
+        return null;
+        //return entityRepository.findVersionAt(label, id, timestamp);
     }
 
     public Slice<PerpetualEntity> findAllCurrent(String label, Pageable pageable) {

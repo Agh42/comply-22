@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface NonDomainResults {
 
     @Transactional(readOnly = true)
-    Collection<String> findLabelsForNode(Long id);
+    Collection<String> findLabelsForNode(Long versionId);
 
     @Transactional
     void deleteAllByLabel(String label);

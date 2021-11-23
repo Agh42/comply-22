@@ -16,22 +16,6 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
     NonDomainResults {
 
 
-    /**
-     * Find the last known version of the entity. If the entity has been deleted this
-     * will return the last known version. This version will have its validity period set in the past
-     * and additionally carry the "deleted" flag.
-     *
-     * @param id
-     * @return
-     */
-    @Query("MATCH (a:Entity) -[r:CURRENT]-> (v:Version) " +
-            "WHERE id(a) = $id " +
-            "AND $label IN labels(a) " +
-            "WITH a,v,r " +
-            "RETURN a, collect(r), collect(v) "
-    )
-    public Optional<PerpetualEntity> findLatestVersion(@Param("label") String label, Long id);
-
     @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
             "WHERE id(a) = $id " +
             "AND $label IN labels(a)  " +
@@ -39,14 +23,12 @@ public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEnti
             "WITH a,v,r " +
             "RETURN a, collect(r), collect(v)"
     )
-    public Optional<PerpetualEntity> findVersionAt(String label, Long id, Instant time);
+    Optional<PerpetualEntity> findVersionAt(String label, Long id, Instant time);
 
     /**
      * Find all entities of the given type for the present time. Deleted entities will not be included in
      * the result.
      *
-     * @param pageable
-     * @return
      */
     @Query("MATCH (a:Entity) -[r:CURRENT]-> (v:Version) " +
             "WHERE $label IN labels(a) " +

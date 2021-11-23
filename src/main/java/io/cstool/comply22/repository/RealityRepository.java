@@ -4,6 +4,7 @@ import io.cstool.comply22.entity.Reality;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 
+import java.time.Instant;
 import java.util.Set;
 
 public interface RealityRepository extends Neo4jRepository<Reality, Long>,
@@ -19,8 +20,8 @@ public interface RealityRepository extends Neo4jRepository<Reality, Long>,
      */
     @Query("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:$changeType}) " +
             "WITH r,c " +
-            "MERGE (r)-[:BEGINS_WITH]->(c{recorded: datetime.transaction()})")
-    void initialize(String timeline, String changeType);
+            "MERGE (r)-[:BEGINS_WITH]->(c{recorded: $timestamp})")
+    void initialize(String timeline, String changeType, Instant timestamp);
 
 
 }

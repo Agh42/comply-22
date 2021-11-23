@@ -1,17 +1,18 @@
 package io.cstool.comply22.dto.response;
 
 import io.cstool.comply22.entity.EntityVersion;
+import io.cstool.comply22.entity.PerpetualEntityRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents the initial version of an entity in conversations with the API client.
- * Not used for updates (subsequent versions).
+ * Represents a version of an entity in conversations with the API client.
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreatedEntityDto {
+public class EntityVersionDto {
+    PerpetualEntityRef entity;
     EntityVersion version;
 }

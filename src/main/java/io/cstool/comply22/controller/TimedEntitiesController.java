@@ -1,8 +1,10 @@
 package io.cstool.comply22.controller;
 
 import io.cstool.comply22.dto.request.CreateEntityDto;
-import io.cstool.comply22.dto.response.CreatedEntityDto;
+import io.cstool.comply22.dto.response.EntityVersionDto;
 import io.cstool.comply22.entity.PerpetualEntity;
+import io.cstool.comply22.entity.PerpetualEntityRef;
+import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.service.PerpetualEntityService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -28,7 +30,7 @@ public class TimedEntitiesController {
     }
 
     @PostMapping("/{label}")
-    public CreatedEntityDto create(@PathVariable @NotEmpty String label,
+    public EntityVersionDto create(@PathVariable @NotEmpty String label,
                                    @RequestParam(required = false) String timeline,
                                    @RequestBody @Valid CreateEntityDto dto) {
         return entityService.createEntity(label, timeline, dto);
@@ -70,7 +72,7 @@ public class TimedEntitiesController {
      * @param timestamp     Request the version that was valid during this point in time (optional)
      */
     @GetMapping(value = {"/{label}/{id}"})
-    public PerpetualEntity getVersion(
+    public EntityVersionDto getVersion(
             @PathVariable
             @NotEmpty
                     String label,
@@ -78,14 +80,27 @@ public class TimedEntitiesController {
             @NotNull
                     Long id,
             @RequestParam(value = "timestamp", required = false)
-                    Instant timestamp
+                    Instant timestamp,
+            @RequestParam(value="timeline", required = false)
+            String timeline
     ) {
         if (timestamp != null) {
             // get point in time:
-            return entityService.find(label, id, timestamp).orElse(null);
+            return new EntityVersionDto(
+                    new PerpetualEntityRef(id),
+                            entityService.find(
+                                    label,
+                                    Reality.timeLineOrDefault(timeline),
+                                    id,
+                                    timestamp));
         } else {
             // get latest:
-            return entityService.find(label, id);
+            return new EntityVersionDto(
+                    new PerpetualEntityRef(id),
+                    entityService.find(
+                            label,
+                            Reality.timeLineOrDefault(timeline),
+                            id));
         }
     }
 

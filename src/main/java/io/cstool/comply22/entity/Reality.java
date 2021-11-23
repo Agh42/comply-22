@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+import static java.util.Objects.requireNonNullElse;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
@@ -51,4 +52,9 @@ public class Reality {
     @JsonProperty(access = READ_ONLY)
     // TODO replace with change ref?
     private Change tip;
+
+    public static String timeLineOrDefault(String timeline) {
+        timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
+        return timeline.isBlank() ? Reality.MAINSTREAM : timeline;
+    }
 }

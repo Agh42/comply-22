@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import static io.cstool.comply22.entity.Change.ChangeType.ROOT;
 
 @Service
@@ -19,6 +21,11 @@ public class TimelineService {
     @Autowired
     ChangeRepository changeRepository;
 
+    /**
+     * Initialize the mainstream timeline. The first change timestamp is set to be the earliest
+     * possible point in time. This makes it possible to insert alternate timelines later that
+     * start at any given time in the past.
+     */
     public void initialize() {
         realityRepository.findByName(Reality.MAINSTREAM).stream().findFirst().ifPresentOrElse(
                 reality -> log.info(String.format("Mainstream timeline was found. ID: %s, Name: %s, Begins: %s",
@@ -26,7 +33,9 @@ public class TimelineService {
                         reality.getName(),
                         reality.getBeginsWith().getRecorded())),
                 () -> {
-                    realityRepository.initialize(Reality.MAINSTREAM, ROOT);
+                    realityRepository.initialize(Reality.MAINSTREAM,
+                            ROOT,
+                            Instant.MIN);
                     log.info("Mainstream timeline was created.");
                 }
         );

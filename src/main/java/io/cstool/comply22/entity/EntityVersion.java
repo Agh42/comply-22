@@ -34,6 +34,7 @@ public class EntityVersion {
 
     @Id
     @GeneratedValue
+    @JsonProperty(access = READ_ONLY)
     private Long id;
 
     @NotNull

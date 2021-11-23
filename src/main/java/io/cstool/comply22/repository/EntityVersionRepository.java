@@ -5,10 +5,12 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, Long>,
-    NonDomainResults {
+        NonDomainResults {
 
     /**
      * <ul>
@@ -27,7 +29,23 @@ public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, 
             "SET old.until = datetime.transaction() " +
             "SET nv.from = datetime.transaction() " +
             "MERGE (e)-[:CURRENT]->(nv) ")
+    // TODO move to nondomain repo
     EntityVersion mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId);
 
+    /**
+     * Find the last known version of the entity in the given timeline.
+     * <p>
+     * If the entity has been deleted this will return the last known version. This version will have its validity
+     * period set in the past and additionally carry the "deleted" flag.
+     */
+    @Query("MATCH p = (e:Entity)-[c:CURRENT]->(v:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$timeline}) " +
+            "WHERE id(e) = $perpetualId " +
+            "AND $label IN labels(e) " +
+            "WITH e,v " +
+            "MATCH (v)-[ro:RECORDED_ON]->(c:Change) " +
+            "RETURN v, collect(ro), collect(c)"
+    )
+    Optional<EntityVersion> findLatestVersion(String label, String timeline,
+                                                    Long perpetualId);
 
 }
