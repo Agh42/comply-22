@@ -1,6 +1,7 @@
 package io.cstool.comply22.dto.request;
 
 import io.cstool.comply22.entity.EntityVersion;
+import io.cstool.comply22.entity.PerpetualEntityRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -21,7 +22,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class UpdateEntityDto {
-    private Long entityId;
-    private String reality;
-    private EntityVersion version;
+    PerpetualEntityRef entity;
+    EntityVersion version;
 }

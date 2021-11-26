@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+import static io.cstool.comply22.entity.Change.ChangeType.UPDATE;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
 @Node("Entity")
@@ -51,16 +52,18 @@ public class PerpetualEntity {
     private Set<VersionOf> versionOf = new HashSet<>();
 
     /**
-     * Pointers to the current version. With multiple timelines, there can be
-     * many current versions: one in each timeline.
+     * Pointers to the current version. With multiple timelines, there can be many current versions: one in each
+     * timeline.
      */
     @Relationship(type = "CURRENT")
     @JsonIgnore
-    private EntityVersion currentVersion;
+    private Set<EntityVersion> currentVersion  = new HashSet<>();
 
     @JsonProperty(access = READ_ONLY)
-    private EntityVersionRef getCurrentVersionRef() {
-        return EntityVersionRef.of(currentVersion);
+    private Set<EntityVersionRef> getCurrentVersionRef() {
+        return currentVersion.stream()
+                .map(EntityVersionRef::of)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public static PerpetualEntity newInstance(String label) {
@@ -74,9 +77,9 @@ public class PerpetualEntity {
     }
 
     public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
-        var version= EntityVersion.newInstance(name, abbreviation, properties);
+        var version = EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
-        currentVersion = version;
+        currentVersion.add(version);
         return version;
     }
 
@@ -92,5 +95,15 @@ public class PerpetualEntity {
         return versionOf.stream()
                 .map(VersionOf::getEntityVersion)
                 .collect(Collectors.toSet());
+    }
+
+    public EntityVersion updateVersion(EntityVersion version) {
+        var newVersion = EntityVersion.newInstance(
+                version.getName(),
+                version.getAbbreviation(),
+                version.getDynamicProperties());
+        versionOf.add(VersionOf.relationShipTo(newVersion));
+        newVersion.getChange().setType(UPDATE);
+        return newVersion;
     }
 }

@@ -57,4 +57,8 @@ public class Reality {
         timeline = requireNonNullElse(timeline, Reality.MAINSTREAM);
         return timeline.isBlank() ? Reality.MAINSTREAM : timeline;
     }
+
+    public static boolean isMainstream(String timeline) {
+        return timeline.equals(MAINSTREAM);
+    }
 }

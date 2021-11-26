@@ -42,7 +42,7 @@ public class EntityVersion {
     @NotBlank
     private String name;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String abbreviation;
 
     @LastModifiedBy
@@ -66,9 +66,17 @@ public class EntityVersion {
         return ChangeRef.of(change);
     }
 
+    /**
+     * Specifies from which time this version was valid in its timeline.
+     */
     @JsonProperty(access = READ_ONLY)
     private Instant from;
 
+    /**
+     * Specifies until which time this version was valid in its timeline.
+     * <p>
+     * Will be null for versions that are the current one in their timeline.
+     */
     @JsonProperty(access = READ_ONLY)
     private Instant until;
 
@@ -76,7 +84,7 @@ public class EntityVersion {
     private boolean deleted;
 
     @JsonGetter("dynamicProperties")
-    public Map<String,Object> serializeCustomProperties() {
+    public Map<String, Object> serializeCustomProperties() {
         return dynPropsSerializer.serialize(dynamicProperties);
     }
 
@@ -94,6 +102,6 @@ public class EntityVersion {
         else
             map = new HashMap<>(properties);
         return new EntityVersion(null, name, abbreviation, null,
-                map, new Change(), Instant.now(), null, false);
+                map, new Change(Instant.now()), Instant.now(), null, false);
     }
 }

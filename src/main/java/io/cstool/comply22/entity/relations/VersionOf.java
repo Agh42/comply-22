@@ -35,6 +35,8 @@ public class VersionOf {
     @JsonProperty(access = READ_ONLY)
     EntityVersion entityVersion;
 
+    // TODO add from/until fields from version to relation as well
+
     public static VersionOf relationShipTo(EntityVersion version) {
         return new VersionOf(null, version);
     }

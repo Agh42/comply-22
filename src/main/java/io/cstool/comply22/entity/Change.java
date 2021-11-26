@@ -15,6 +15,7 @@ import java.time.Instant;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static lombok.AccessLevel.PACKAGE;
+import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
 /**
@@ -23,7 +24,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @Node("Change")
 @Data
 @AllArgsConstructor(access = PACKAGE)
-@NoArgsConstructor(access = PACKAGE)
+@NoArgsConstructor(access = PRIVATE)
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Change {
@@ -37,10 +38,34 @@ public class Change {
     @JsonProperty(access = READ_ONLY)
     private String lastModifiedBy;
 
-    @CreatedDate
+    Change(Instant recorded) {
+        this.recorded = recorded;
+    }
+
+    /**
+     * The time at which a decision was made about a version. This may be the actual time when this change was recorded
+     * in the database. However, it may also be past timestamp specified by the user. This is used to simulate
+     * past recordings.
+     * <p>
+     * See also:
+     * <ul>
+     * <li>{@link Change#transactionTime}
+     * <li>{@link EntityVersion#getFrom()}
+     * <li>{@link EntityVersion#getUntil()}
+     * </ul>
+     *
+     */
     @JsonProperty(access = READ_ONLY)
     @ToString.Include
     Instant recorded;
+
+    /**
+     * This always represents the actual time when this change was recorded to the database.
+     */
+    @CreatedDate
+    @JsonProperty(access = READ_ONLY)
+    @ToString.Include
+    Instant transactionTime;
 
     @ToString.Include
     @JsonProperty(access = READ_ONLY)

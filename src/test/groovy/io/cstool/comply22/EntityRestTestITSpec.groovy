@@ -5,13 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import groovy.json.JsonSlurper
 import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.dto.request.CreateEntityDto
-import io.cstool.comply22.dto.request.UpdateEntityDto
 import io.cstool.comply22.entity.PerpetualEntity
-import io.cstool.comply22.entity.Reality
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Ignore
 import spock.lang.Shared
@@ -21,6 +20,13 @@ import java.time.Instant
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+
+//  add /history to return the current anchor/versionOfs/version DTO
+// TODO on PUTting the version, follow link to anchor and insert new version,
+//  change from/until of last valid
+//  version (has until:null in this reality)
+
+
 
 @SpringBootTest(classes = Comply22Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles(["test", "dev", "local"])
@@ -98,7 +104,6 @@ class EntityRestTestITSpec extends Specification {
         def entity = newEntity()
         String id = entity.entity.id
         def beforeChange = Instant.now()
-        // TODO update, creating new version
         def afterChange = Instant.now()
 
         when: "get the last still valid version as of now"
@@ -186,8 +191,6 @@ class EntityRestTestITSpec extends Specification {
             nextChange == null
             tipOf != null
         }
-
-
     }
 
     @Ignore
@@ -203,27 +206,53 @@ class EntityRestTestITSpec extends Specification {
     }
 
     def "update an entity"() {
-        given:
+        given: "an entity"
         def beforeCreation = Instant.now()
-        def dto = newEntity("Control", "MyControl")
+        def label = "Control"
+        def dto = newEntity(label, "Name1")
         Long id = dto.entity.id
+
+        when: "the initial version is retreived"
         def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
+        def version = response.version
 
-        //  add /history to return the current anchor/versionOfs/version DTO
-        // TODO on PUTting the version, follow link to anchor and insert new version,
-        //  change from/until of last valid
-        //  version (has until:null in this reality)
+        then: "all values are present"
+        version.name == "Name1"
+        version.id != null
+        version.abbreviation == "Abbr1"
+
+        version.dynamicProperties.keyString == "value1"
+        version.dynamicProperties.keyDate == testDate
+        version.dynamicProperties.keyInt == 42
+        version.dynamicProperties.keyDouble == 4.2
+
+        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) > beforeCreation
+        version.until == null
+        (!version.deleted)
+
+        version.change != null
+        version.change.id > 0
 
         when: "the entity is modified"
-        UpdateEntityDto updateDto = new UpdateEntityDto()
-        updateDto.setEntityId(response.entity.id)
-        updateDto.setReality(Reality.MAINSTREAM)
-        updateDto.setEntityVersion(version)
+        def beforeUpdate = Instant.now()
+        response.version.name = "Changed name"
+
+        HttpEntity<String> request = new HttpEntity<>(response.toString())
+        def responseEntity = restTemplate.exchange(
+                "/api/v1/entities/${label}",
+                HttpMethod.PUT,
+                request,
+                String.class)
+        def updatedResponse = jsonSlurper.parseText(responseEntity.getBody())
+
+        def afterUpdate = Instant.now()
 
         then: "a new version was saved"
-        true == true
+        updatedResponse.entity.id == response.entity.id
+        updatedResponse.version.name == "Changed name"
     }
 
     @Ignore

@@ -5,7 +5,6 @@ import io.cstool.comply22.dto.response.EntityVersionDto;
 import io.cstool.comply22.entity.EntityVersion;
 import io.cstool.comply22.entity.PerpetualEntity;
 import io.cstool.comply22.entity.PerpetualEntityRef;
-import io.cstool.comply22.entity.Reality;
 import io.cstool.comply22.repository.ChangeRepository;
 import io.cstool.comply22.repository.EntityVersionRepository;
 import io.cstool.comply22.repository.PerpetualEntityRepository;
@@ -23,6 +22,8 @@ import java.time.Instant;
 import java.util.Map;
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
+import static io.cstool.comply22.entity.Reality.isMainstream;
+import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
 @Service
 @Slf4j
@@ -57,7 +58,7 @@ public class PerpetualEntityService {
     public EntityVersionDto createEntity(@NotNull String label, @Nullable String timeline,
                                          CreateEntityDto dto) {
         label = capitalize(label);
-        timeline = Reality.timeLineOrDefault(timeline);
+        timeline = timeLineOrDefault(timeline);
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
@@ -118,5 +119,36 @@ public class PerpetualEntityService {
 
     private String capitalize(String label) {
         return StringUtils.capitalize(label.toLowerCase());
+    }
+
+    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp, EntityVersion version) {
+        timeline = timeLineOrDefault(timeline);
+
+        // arbitrary timestamps are only allowed for alternate timelines.
+        // The mainstream will always represent current user time.
+        if (isMainstream(timeline) && timestamp != null)
+            throw new IllegalArgumentException("Manually setting a timestamp is not accepted for the mainstream timeline. Please provide an alternate " +
+                    "timeline or do not supply a timestamp.");
+
+        var anchor = entityRepository.findById(entity.getId()).orElseThrow();
+        var updatedVersion = anchor.updateVersion(version);
+        anchor = entityRepository.save(anchor);
+        log.debug("Saved entity: {}", anchor);
+
+//         ??? set timestamps of previous and new versions
+//        move current pointer forward in correct timeline
+//        move change pointer forward
+
+        updatedVersion = versionRepository.save(updatedVersion);
+        log.debug("Saved updatedVersion: {}", updatedVersion);
+
+        // update reality tree:
+//        var changeId = version.getChange().getId();
+//        changeRepository.mergeWithTimeline(timeline, changeId);
+//
+//        anchor = entityRepository.findById(anchor.getId()).orElseThrow();
+//        version = anchor.getVersion(version.getId()).orElseThrow();
+//        log.debug("Saved change: {}", version.getChange());
+
     }
 }
