@@ -188,6 +188,8 @@ class EntityRestTestITSpec extends Specification {
             type == INSERT
             Instant.parse(recorded) > beforeCreation
             Instant.parse(recorded) < Instant.now()
+            Instant.parse(transactionTime) > beforeCreation
+            Instant.parse(transactionTime) < Instant.now()
             nextChange == null
             tipOf != null
         }
