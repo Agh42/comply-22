@@ -78,6 +78,22 @@ public class TimedEntitiesController {
 
     }
 
+    @GetMapping(value = {"/{label}/{id}/versions/{versionId}"})
+    public EntityVersionDto getVersionById(
+            @PathVariable
+            @NotEmpty
+                String label,
+            @PathVariable
+            @NotNull
+                Long id,
+            @PathVariable
+            @NotNull
+                Long versionId
+    ) {
+        return new EntityVersionDto(new PerpetualEntityRef(id),
+                entityService.find(label, id, versionId));
+    }
+
     /**
      * Request one version of an entity. Without additional parameters this will return the latest version.
      * A timestamp may be used to request a specific version.
@@ -96,7 +112,7 @@ public class TimedEntitiesController {
             @RequestParam(value = "timestamp", required = false)
                     Instant timestamp,
             @RequestParam(value="timeline", required = false)
-            String timeline
+                    String timeline
     ) {
         if (timestamp != null) {
             // get point in time:

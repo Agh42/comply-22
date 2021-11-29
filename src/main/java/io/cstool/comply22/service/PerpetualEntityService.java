@@ -22,8 +22,8 @@ import java.time.Instant;
 import java.util.Map;
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
-import static io.cstool.comply22.entity.Reality.isMainstream;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
+import static java.lang.String.format;
 
 @Service
 @Slf4j
@@ -99,6 +99,26 @@ public class PerpetualEntityService {
     }
 
     /**
+     * Find specific version by its ID.
+     */
+    public EntityVersion find(String label, Long perpetualId, Long versionId) {
+        // TODO add custom query to repository to speed up execution
+        var entity = entityRepository.findById(perpetualId).orElseThrow();
+        var version = versionRepository.findById(versionId).orElseThrow();
+        // Check entity relationship:
+        if (entity.getVersion(versionId).isEmpty()) {
+            throw new IllegalArgumentException(format(
+                    "Version ID {} not found for entity ID {}",
+                    versionId, perpetualId));
+        }
+        // Check label is correct:
+        if (!entity.getCustomLabels().contains(label)) {
+            throw new IllegalArgumentException(format("Wrong label {} for entity ID {}", label, perpetualId));
+        }
+        return version;
+    }
+
+    /**
      * Find version at specific timestamp
      */
     public EntityVersion find(String label, String timeline, Long perpetualId, Instant timestamp) {
@@ -123,12 +143,6 @@ public class PerpetualEntityService {
 
     public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp, EntityVersion version) {
         timeline = timeLineOrDefault(timeline);
-
-        // arbitrary timestamps are only allowed for alternate timelines.
-        // The mainstream will always represent current user time.
-        if (isMainstream(timeline) && timestamp != null)
-            throw new IllegalArgumentException("Manually setting a timestamp is not accepted for the mainstream timeline. Please provide an alternate " +
-                    "timeline or do not supply a timestamp.");
 
         var anchor = entityRepository.findById(entity.getId()).orElseThrow();
         var updatedVersion = anchor.updateVersion(version);

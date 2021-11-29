@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Ignore
 import spock.lang.Shared
@@ -238,23 +237,68 @@ class EntityRestTestITSpec extends Specification {
         version.change != null
         version.change.id > 0
 
+        when: "its change is requested"
+        def jsonChange = restTemplate.getForObject("/api/v1/timelines/" + version.change.id,
+                ObjectNode.class)
+        def change = jsonSlurper.parseText(jsonChange.toString())
+
+        then: "all timestamps are set correctly"
+        with (change) {
+            id == version.change.id
+            lastModifiedBy == null
+            recorded xxx check these
+            transactionTime
+            nextChange
+            type
+            tipOf
+        }
+
+
+
         when: "the entity is modified"
         def beforeUpdate = Instant.now()
         response.version.name = "Changed name"
 
         HttpEntity<String> request = new HttpEntity<>(response.toString())
-        def responseEntity = restTemplate.exchange(
+        restTemplate.put(
                 "/api/v1/entities/${label}",
-                HttpMethod.PUT,
-                request,
-                String.class)
-        def updatedResponse = jsonSlurper.parseText(responseEntity.getBody())
-
+                request)
         def afterUpdate = Instant.now()
+
+        and: "the entity is requested again"
+        json = restTemplate.getForObject("/api/v1/entities/control/" + response.entity.id,
+                ObjectNode.class)
+        def updatedResponse = jsonSlurper.parseText(json.toString())
 
         then: "a new version was saved"
         updatedResponse.entity.id == response.entity.id
-        updatedResponse.version.name == "Changed name"
+        version = updatedResponse.version
+        version.name == "Changed name"
+
+        version.id != null
+        version.abbreviation == "Abbr1"
+
+        version.dynamicProperties.keyString == "value1"
+        version.dynamicProperties.keyDate == testDate
+        version.dynamicProperties.keyInt == 42
+        version.dynamicProperties.keyDouble == 4.2
+
+        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) > beforeCreation
+        version.until == null
+        (!version.deleted)
+
+        version.change != null
+        version.change.id > 0
+
+        when: "the old version is request"
+        then: "timestamps of the old version were modified"
+
+        when: "the change of the new version is requested"
+        then: "its timestamps are set correctly"
+
+        when: "the change of the old version is requested"
+        then: "its timestamps were not modified"
     }
 
     @Ignore
