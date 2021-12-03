@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
 import static io.cstool.comply22.entity.Change.ChangeType.UPDATE;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
 
@@ -76,7 +77,37 @@ public class PerpetualEntity {
         return new PerpetualEntity();
     }
 
-    public EntityVersion newVersion(String name, String abbreviation, Map<String, Object> properties) {
+    /**
+     * Creates the first version of this entity - when the entity is inserted into the repository.
+     */
+    public EntityVersion insert(String name, String abbreviation, Map<String, Object> properties) {
+        var version = createVersion(name, abbreviation, properties);
+        version.getChange().setType(INSERT);
+        return version;
+    }
+
+    /**
+     * Creates another version of this entity - when the entity is updated.
+     */
+    public EntityVersion update(EntityVersion version) {
+        var newVersion = createVersion(
+                version.getName(),
+                version.getAbbreviation(),
+                version.getDynamicProperties());
+        versionOf.add(VersionOf.relationShipTo(newVersion));
+        newVersion.getChange().setType(UPDATE);
+        return newVersion;
+    }
+
+    /**
+     * Creates a version that represents the deleted state of this entity.
+     */
+    public EntityVersion delete(EntityVersion version) {
+        // FIXME todo
+        return null;
+    }
+
+    private EntityVersion createVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version = EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
         currentVersion.add(version);
@@ -97,13 +128,5 @@ public class PerpetualEntity {
                 .collect(Collectors.toSet());
     }
 
-    public EntityVersion updateVersion(EntityVersion version) {
-        var newVersion = EntityVersion.newInstance(
-                version.getName(),
-                version.getAbbreviation(),
-                version.getDynamicProperties());
-        versionOf.add(VersionOf.relationShipTo(newVersion));
-        newVersion.getChange().setType(UPDATE);
-        return newVersion;
-    }
+
 }

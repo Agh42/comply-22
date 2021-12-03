@@ -3,7 +3,6 @@ package io.cstool.comply22
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import groovy.json.JsonSlurper
-import io.cstool.comply22.Comply22Application
 import io.cstool.comply22.dto.request.CreateEntityDto
 import io.cstool.comply22.entity.PerpetualEntity
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +17,7 @@ import spock.lang.Specification
 import java.time.Instant
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT
+import static io.cstool.comply22.entity.Change.ChangeType.UPDATE
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 //  add /history to return the current anchor/versionOfs/version DTO
@@ -218,6 +218,7 @@ class EntityRestTestITSpec extends Specification {
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
         def version = response.version
+        def oldVersionId = response.version.id
 
         then: "all values are present"
         version.name == "Name1"
@@ -246,14 +247,14 @@ class EntityRestTestITSpec extends Specification {
         with (change) {
             id == version.change.id
             lastModifiedBy == null
-            recorded xxx check these
-            transactionTime
-            nextChange
-            type
-            tipOf
+            Instant.parse(recorded) > beforeCreation
+            Instant.parse(recorded) < Instant.now()
+            Instant.parse(transactionTime) > beforeCreation
+            Instant.parse(transactionTime) < Instant.now()
+            nextChange == null
+            type = INSERT
+            tipOf.id != null
         }
-
-
 
         when: "the entity is modified"
         def beforeUpdate = Instant.now()
@@ -291,14 +292,43 @@ class EntityRestTestITSpec extends Specification {
         version.change != null
         version.change.id > 0
 
-        when: "the old version is request"
+        when: "the old version is requested"
+        json = restTemplate.getForObject("/api/v1/entities/control/" + response.entity.id
+                + "/versions/" + oldVersionId,
+                ObjectNode.class)
+        def oldVersionResponse = jsonSlurper.parseText(json.toString())
+        def oldVersion= oldVersionResponse.version
+
         then: "timestamps of the old version were modified"
+        version.from == oldVersion.until
 
-        when: "the change of the new version is requested"
-        then: "its timestamps are set correctly"
+        when: "the old and new change are requested"
+        json = restTemplate.getForObject("/api/v1/timelines/" + version.change.id,
+                ObjectNode.class)
+        def newChange = jsonSlurper.parseText(json.toString())
 
-        when: "the change of the old version is requested"
-        then: "its timestamps were not modified"
+        json = restTemplate.getForObject("/api/v1/timelines/" + oldVersion.change.id,
+                ObjectNode.class)
+        def oldChange = jsonSlurper.parseText(json.toString())
+
+        then: "the timestamps are set correctly"
+        with (newChange) {
+            id == version.change.id
+            lastModifiedBy == null
+            Instant.parse(recorded) > Instant.parse(oldChange.recorded)
+            Instant.parse(recorded) < Instant.now()
+            Instant.parse(transactionTime) > Instant.parse(oldChange.transactionTime)
+            Instant.parse(transactionTime) < Instant.now()
+            nextChange == null
+            type = UPDATE
+        }
+
+        and: "the new change is now the tip of the timeline"
+        newChange.tipOf.id != null
+        oldChange.tipOf.id == null
+
+        and: "the old change points to the new change"
+        oldChange.next.id == newChange.id
     }
 
     @Ignore
@@ -325,7 +355,7 @@ class EntityRestTestITSpec extends Specification {
 
     private Object newEntity(String label, String name) {
         def anchor = PerpetualEntity.newInstance()
-        def version = anchor.newVersion(name, "Abbr1", Map.of(
+        def version = anchor.insert(name, "Abbr1", Map.of(
                 "keyString", "value1",
                 "keyDate", Instant.parse(testDate),
                 "keyInt", 42,

@@ -6,7 +6,6 @@ import io.cstool.comply22.entity.PerpetualEntity
 import io.cstool.comply22.entity.Reality
 import io.cstool.comply22.repository.ChangeRepository
 import io.cstool.comply22.repository.RealityRepository
-import io.cstool.comply22.service.PerpetualEntityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -36,7 +35,7 @@ class EntityServiceITSpec extends Specification {
         when: "a new entity is saved"
         def beforeSave = Instant.now()
         def entity = PerpetualEntity.newInstance("control")
-        def version = entity.newVersion("mycontrol", "ctrl", null)
+        def version = entity.insert("mycontrol", "ctrl", null)
         def dto = new CreateEntityDto(version)
         def result = entityService.createEntity("control", null, dto)
                 .getVersion()

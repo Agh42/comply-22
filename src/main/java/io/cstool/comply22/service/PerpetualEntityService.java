@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 
-import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 import static java.lang.String.format;
 
@@ -62,18 +62,16 @@ public class PerpetualEntityService {
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
-        var version = anchor.newVersion(
+        var version = anchor.insert(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
                 dto.getVersion().getDynamicProperties());
-        version.getChange().setType(INSERT);
         anchor = entityRepository.save(anchor);
         log.debug("Saved entity: {}", anchor);
 
         // insert version:
         version = versionRepository.save(version);
         log.debug("Saved version: {}", version);
-        //version = versionRepository.mergeVersionWithEntity(timeline, anchor.getId(), version.getId()); // merge second and later versions
 
         // update reality tree:
         var changeId = version.getChange().getId();
@@ -141,28 +139,38 @@ public class PerpetualEntityService {
         return StringUtils.capitalize(label.toLowerCase());
     }
 
-    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp, EntityVersion version) {
+    @Transactional
+    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp, EntityVersion dtoVersion) {
         timeline = timeLineOrDefault(timeline);
+        timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
 
+        // FIXME check if timestamp is past previous version's validFom
+
+        // create new version of the entity (with its change):
         var anchor = entityRepository.findById(entity.getId()).orElseThrow();
-        var updatedVersion = anchor.updateVersion(version);
+        var updatedVersion = anchor.update(dtoVersion);
         anchor = entityRepository.save(anchor);
         log.debug("Saved entity: {}", anchor);
 
-//         ??? set timestamps of previous and new versions
-//        move current pointer forward in correct timeline
-//        move change pointer forward
+        // adjust timestamps and move the "current version" pointer of the entity forward in this timeline:
+        versionRepository.mergeVersionWithEntity(timeline,
+                entity.getId(),
+                updatedVersion.getId(),
+                timestamp);
 
-        updatedVersion = versionRepository.save(updatedVersion);
-        log.debug("Saved updatedVersion: {}", updatedVersion);
-
-        // update reality tree:
+        // make the new version's change the tip of this timeline:
+        // TODO xxx
 //        var changeId = version.getChange().getId();
 //        changeRepository.mergeWithTimeline(timeline, changeId);
 //
 //        anchor = entityRepository.findById(anchor.getId()).orElseThrow();
 //        version = anchor.getVersion(version.getId()).orElseThrow();
 //        log.debug("Saved change: {}", version.getChange());
+
+
+        updatedVersion = versionRepository.save(updatedVersion);
+        log.debug("Saved updatedVersion: {}", updatedVersion);
+
 
     }
 }

@@ -2,7 +2,9 @@ package io.cstool.comply22.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
@@ -66,6 +68,32 @@ public class NonDomainResultsImpl implements NonDomainResults {
                         "MERGE (oldtip)-[:NEXT]->(newtip)-[:TIP_OF]->(r) ",
                 Map.of("timeline", timeline,
                         "changeId", changeId));
+    }
+
+    /**
+     * <ul>
+     * <li>Find most recent version of entity in the given timeline.
+     * <li>Set the "validUntil" timestamp of its pointer to 'now'.
+     * <li>Set "validFrom" on the pointer of the new version to the same 'now'.
+     * <li>Then move the current-pointer of the entity to the new version.
+     * </ul>
+     */
+    @Transactional()
+    public void mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId, Instant timestamp) {
+        this.execute("MATCH p = (e:Entity)-[c:CURRENT]->(old:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$reality}) " +
+                "WHERE id(e) = $perpetualEntityId " +
+                "WITH e,c,old " +
+                "MATCH (nv:Version) WHERE id(nv) = $newVersionId " +
+                "DELETE c " +
+                "SET old.until = $timestamp " +
+                "SET nv.from = $timestamp " +
+                "MERGE (e)-[:CURRENT]->(nv) ",
+                Map.of(
+                        "reality", reality,
+                        "perpetualEntityId", perpetualEntityId,
+                        "newVersionId", newVersionId,
+                        "timestamp", timestamp
+                ));
     }
 
 }

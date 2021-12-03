@@ -40,7 +40,7 @@ public class TimedEntitiesController {
 
     @PutMapping("/{label}/{id}")
     public void update(@RequestBody @Valid EntityVersionDto dto,
-                       @RequestParam(required = false) String timeline,
+                       @RequestParam(required = false) @Nullable String timeline,
                        @RequestParam(required = false) @Nullable Instant timestamp) {
         entityService.updateEntity(timeline,
                 dto.getEntity(),
