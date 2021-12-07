@@ -29,9 +29,10 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Change {
     @Id
-    @GeneratedValue()
+    @GeneratedValue
     @ToString.Include
     @EqualsAndHashCode.Include
+    @JsonProperty(access = READ_ONLY)
     private Long id;
 
     @LastModifiedBy

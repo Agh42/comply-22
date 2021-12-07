@@ -16,6 +16,9 @@ public interface NonDomainResults {
     @Transactional
     void mergeWithTimeline(String timeline, Long changeId);
 
+    /**
+     * Adjust old/new version's timestamps and move the "current version" pointer of the entity forward in this timeline.
+     */
     @Transactional
     void mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId, Instant timestamp);
 

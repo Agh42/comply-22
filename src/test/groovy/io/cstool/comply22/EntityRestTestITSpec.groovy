@@ -213,7 +213,7 @@ class EntityRestTestITSpec extends Specification {
         def dto = newEntity(label, "Name1")
         Long id = dto.entity.id
 
-        when: "the initial version is retreived"
+        when: "the initial version is retrieved"
         def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
@@ -252,7 +252,7 @@ class EntityRestTestITSpec extends Specification {
             Instant.parse(transactionTime) > beforeCreation
             Instant.parse(transactionTime) < Instant.now()
             nextChange == null
-            type = INSERT
+            type == INSERT
             tipOf.id != null
         }
 
@@ -273,7 +273,7 @@ class EntityRestTestITSpec extends Specification {
 
         then: "a new version was saved"
         updatedResponse.entity.id == response.entity.id
-        version = updatedResponse.version
+        version == updatedResponse.version
         version.name == "Changed name"
 
         version.id != null
@@ -320,7 +320,7 @@ class EntityRestTestITSpec extends Specification {
             Instant.parse(transactionTime) > Instant.parse(oldChange.transactionTime)
             Instant.parse(transactionTime) < Instant.now()
             nextChange == null
-            type = UPDATE
+            type == UPDATE
         }
 
         and: "the new change is now the tip of the timeline"

@@ -106,12 +106,14 @@ public class PerpetualEntityService {
         // Check entity relationship:
         if (entity.getVersion(versionId).isEmpty()) {
             throw new IllegalArgumentException(format(
-                    "Version ID {} not found for entity ID {}",
+                    "Version ID %s not found for entity ID %s",
                     versionId, perpetualId));
         }
         // Check label is correct:
         if (!entity.getCustomLabels().contains(label)) {
-            throw new IllegalArgumentException(format("Wrong label {} for entity ID {}", label, perpetualId));
+            throw new IllegalArgumentException(
+                    format("Wrong label %s for entity ID %s",
+                            label, perpetualId));
         }
         return version;
     }
@@ -146,31 +148,26 @@ public class PerpetualEntityService {
 
         // FIXME check if timestamp is past previous version's validFom
 
-        // create new version of the entity (with its change):
+        // Create new version of the entity. This also creates a new change:
         var anchor = entityRepository.findById(entity.getId()).orElseThrow();
         var updatedVersion = anchor.update(dtoVersion);
         anchor = entityRepository.save(anchor);
         log.debug("Saved entity: {}", anchor);
 
-        // adjust timestamps and move the "current version" pointer of the entity forward in this timeline:
+        // Adjust timestamps and move the "current" pointer of the entity forward in this timeline:
         versionRepository.mergeVersionWithEntity(timeline,
                 entity.getId(),
                 updatedVersion.getId(),
                 timestamp);
+        log.debug("Made version {} current in timeline {} with timestamp {}", updatedVersion.getId(), timeline,
+                timestamp);
 
         // make the new version's change the tip of this timeline:
-        // TODO xxx
-//        var changeId = version.getChange().getId();
-//        changeRepository.mergeWithTimeline(timeline, changeId);
-//
-//        anchor = entityRepository.findById(anchor.getId()).orElseThrow();
-//        version = anchor.getVersion(version.getId()).orElseThrow();
-//        log.debug("Saved change: {}", version.getChange());
+        changeRepository.mergeWithTimeline(timeline,
+                updatedVersion.getChange().getId());
+        log.debug("Moved tip of timeline {} forward to change {}", timeline, updatedVersion.getChange().getId());
 
-
-        updatedVersion = versionRepository.save(updatedVersion);
-        log.debug("Saved updatedVersion: {}", updatedVersion);
-
-
+//        updatedVersion = versionRepository.save(updatedVersion);
+//        log.debug("Saved updatedVersion: {}", updatedVersion);
     }
 }

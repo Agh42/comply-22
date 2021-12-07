@@ -42,6 +42,7 @@ public class TimelineService {
     }
 
     public Change findById(Long id) {
-        return changeRepository.findById(id).orElseThrow();
+        var change = changeRepository.findById(id).orElseThrow();
+        return change;
     }
 }
