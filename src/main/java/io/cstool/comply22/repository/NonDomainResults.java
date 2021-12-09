@@ -22,4 +22,9 @@ public interface NonDomainResults {
     @Transactional
     void mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId, Instant timestamp);
 
+    /** Set the first versoin of an entity as its current version.
+     */
+    @Transactional
+    void mergeNewVersionWithEntity(Long perpetualEntityId, Long newVersionId);
+
 }

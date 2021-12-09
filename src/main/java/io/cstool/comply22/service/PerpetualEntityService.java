@@ -56,16 +56,18 @@ public class PerpetualEntityService {
 
     @Transactional
     public EntityVersionDto createEntity(@NotNull String label, @Nullable String timeline,
-                                         CreateEntityDto dto) {
+                                         Instant timestamp, CreateEntityDto dto) {
         label = capitalize(label);
         timeline = timeLineOrDefault(timeline);
+        timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
         var version = anchor.insert(
                 dto.getVersion().getName(),
                 dto.getVersion().getAbbreviation(),
-                dto.getVersion().getDynamicProperties());
+                dto.getVersion().getDynamicProperties(),
+                timestamp);
         anchor = entityRepository.save(anchor);
         log.debug("Saved entity: {}", anchor);
 
@@ -73,9 +75,13 @@ public class PerpetualEntityService {
         version = versionRepository.save(version);
         log.debug("Saved version: {}", version);
 
+        // make version current:
+        versionRepository.mergeNewVersionWithEntity(anchor.getId(), version.getId());
+/// FIXME xxx no CURRENT link in DB
         // update reality tree:
-        var changeId = version.getChange().getId();
-        changeRepository.mergeWithTimeline(timeline, changeId);
+        var change = changeRepository.save(version.getChange());
+        version.setChange(change);
+        changeRepository.mergeWithTimeline(timeline, change.getId());
 
         anchor = entityRepository.findById(anchor.getId()).orElseThrow();
         version = anchor.getVersion(version.getId()).orElseThrow();
@@ -142,7 +148,8 @@ public class PerpetualEntityService {
     }
 
     @Transactional
-    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp, EntityVersion dtoVersion) {
+    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp,
+                             EntityVersion dtoVersion) {
         timeline = timeLineOrDefault(timeline);
         timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
 

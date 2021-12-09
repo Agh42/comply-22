@@ -26,12 +26,10 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @AllArgsConstructor(access = PACKAGE)
 @NoArgsConstructor(access = PRIVATE)
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Change {
     @Id
     @GeneratedValue
     @ToString.Include
-    @EqualsAndHashCode.Include
     @JsonProperty(access = READ_ONLY)
     private Long id;
 
@@ -91,6 +89,20 @@ public class Change {
         return RealityRef.of(tipOf);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Change))
+            return false;
+        Change other = (Change) o;
+        return id != null &&
+                id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Change.class.hashCode();
+    }
 
     public static class ChangeType {
         /**
@@ -106,4 +118,6 @@ public class Change {
         public static final String UPDATE = "UPDATE";
         public static final String DELETE = "DELETE";
     }
+
+
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,20 +53,20 @@ public class PerpetualEntity {
     @JsonProperty(access = READ_ONLY)
     private Set<VersionOf> versionOf = new HashSet<>();
 
-    /**
-     * Pointers to the current version. With multiple timelines, there can be many current versions: one in each
-     * timeline.
-     */
-    @Relationship(type = "CURRENT")
-    @JsonIgnore
-    private Set<EntityVersion> currentVersion  = new HashSet<>();
+//    /**
+//     * Pointers to the current version. With multiple timelines, there can be many current versions: one in each
+//     * timeline.
+//     */
+//    @Relationship(type = "CURRENT")
+//    @JsonIgnore
+//    private Set<EntityVersion> currentVersion  = new HashSet<>();
 
-    @JsonProperty(access = READ_ONLY)
-    private Set<EntityVersionRef> getCurrentVersionRef() {
-        return currentVersion.stream()
-                .map(EntityVersionRef::of)
-                .collect(Collectors.toUnmodifiableSet());
-    }
+//    @JsonProperty(access = READ_ONLY)
+//    private Set<EntityVersionRef> getCurrentVersionRef() {
+//        return currentVersion.stream()
+//                .map(EntityVersionRef::of)
+//                .collect(Collectors.toUnmodifiableSet());
+//    }
 
     public static PerpetualEntity newInstance(String label) {
         var entity = new PerpetualEntity();
@@ -80,9 +81,11 @@ public class PerpetualEntity {
     /**
      * Creates the first version of this entity - when the entity is inserted into the repository.
      */
-    public EntityVersion insert(String name, String abbreviation, Map<String, Object> properties) {
+    public EntityVersion insert(String name, String abbreviation, Map<String, Object> properties,
+                                Instant timestamp) {
         var version = createVersion(name, abbreviation, properties);
         version.getChange().setType(INSERT);
+        version.getChange().setRecorded(timestamp);
         return version;
     }
 
@@ -110,7 +113,7 @@ public class PerpetualEntity {
     private EntityVersion createVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version = EntityVersion.newInstance(name, abbreviation, properties);
         versionOf.add(VersionOf.relationShipTo(version));
-        currentVersion.add(version);
+//        currentVersion.add(version);
         return version;
     }
 

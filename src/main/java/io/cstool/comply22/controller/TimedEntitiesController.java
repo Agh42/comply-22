@@ -33,9 +33,10 @@ public class TimedEntitiesController {
 
     @PostMapping("/{label}")
     public EntityVersionDto create(@PathVariable @NotEmpty String label,
-                                   @RequestParam(required = false) String timeline,
+                                   @RequestParam(required = false) @Nullable String timeline,
+                                   @RequestParam(required = false) @Nullable Instant timestamp,
                                    @RequestBody @Valid CreateEntityDto dto) {
-        return entityService.createEntity(label, timeline, dto);
+        return entityService.createEntity(label, timeline, timestamp, dto);
     }
 
     @PutMapping("/{label}/{id}")
