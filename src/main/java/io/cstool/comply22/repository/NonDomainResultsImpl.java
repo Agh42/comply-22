@@ -5,6 +5,8 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -106,6 +108,16 @@ public class NonDomainResultsImpl implements NonDomainResults {
                         "perpetualEntityId", perpetualEntityId,
                         "newVersionId", newVersionId
                 ));
+    }
+
+    @Override
+    public void initializeTimeline(String timeline, String changeType, Instant timestamp) {
+        this.execute("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:$changeType, recorded: $timestamp}) " +
+                        "WITH r,c " +
+                        "MERGE (r)-[:BEGINS_WITH]->(c)",
+                Map.of("timeline", timeline,
+                        "changeType", changeType,
+                        "timestamp", LocalDateTime.ofInstant(timestamp, ZoneOffset.UTC)));
     }
 
 }

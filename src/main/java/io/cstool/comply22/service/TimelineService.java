@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static io.cstool.comply22.entity.Change.ChangeType.ROOT;
 
@@ -33,9 +34,10 @@ public class TimelineService {
                         reality.getName(),
                         reality.getBeginsWith().getRecorded())),
                 () -> {
-                    realityRepository.initialize(Reality.MAINSTREAM,
+                    realityRepository.initializeTimeline(Reality.MAINSTREAM,
                             ROOT,
-                            Instant.MIN);
+                            Instant.now().minus(365, ChronoUnit.DAYS));
+                            //Instant.MIN.plus(366, ChronoUnit.DAYS)); // earliest time accepted by ChronoField
                     log.info("Mainstream timeline was created.");
                 }
         );

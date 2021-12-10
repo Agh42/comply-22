@@ -22,9 +22,17 @@ public interface NonDomainResults {
     @Transactional
     void mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId, Instant timestamp);
 
-    /** Set the first versoin of an entity as its current version.
+    /** Set the first version of an entity as its current version.
      */
     @Transactional
     void mergeNewVersionWithEntity(Long perpetualEntityId, Long newVersionId);
+
+    /**
+     * Initialize the named timeline with a first change of the given type.
+     * If the creation of the timeline is not associated with an entity change, use the change
+     * type {@code ChangeType.ROOT}.
+     */
+    void initializeTimeline(String timeline, String changeType, Instant timestamp);
+
 
 }

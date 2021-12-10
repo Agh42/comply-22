@@ -77,7 +77,7 @@ public class PerpetualEntityService {
 
         // make version current:
         versionRepository.mergeNewVersionWithEntity(anchor.getId(), version.getId());
-/// FIXME xxx no CURRENT link in DB
+
         // update reality tree:
         var change = changeRepository.save(version.getChange());
         version.setChange(change);
@@ -139,6 +139,7 @@ public class PerpetualEntityService {
     }
 
     public void deleteAll(String label) {
+        // FIXME insert deleted version for all entities in $timeline
         label = capitalize(label);
         entityRepository.deleteAllByLabel(label);
     }
