@@ -3,7 +3,10 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -19,7 +22,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
 /**
- * A point in time that i associated with changes to one or more entities.
+ * A point in time that is associated with changes to one or more entities.
  */
 @Node("Change")
 @Data

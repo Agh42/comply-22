@@ -36,15 +36,14 @@ public class TimelineService {
                 () -> {
                     realityRepository.initializeTimeline(Reality.MAINSTREAM,
                             ROOT,
-                            Instant.now().minus(365, ChronoUnit.DAYS));
-                            //Instant.MIN.plus(366, ChronoUnit.DAYS)); // earliest time accepted by ChronoField
+                            Instant.MIN.plus(366, ChronoUnit.DAYS) // earliest time for ChronoField
+                    );
                     log.info("Mainstream timeline was created.");
                 }
         );
     }
 
     public Change findById(Long id) {
-        var change = changeRepository.findById(id).orElseThrow();
-        return change;
+        return changeRepository.findById(id).orElseThrow();
     }
 }

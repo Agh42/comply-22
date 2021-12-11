@@ -157,7 +157,7 @@ class EntityRestTestITSpec extends Specification {
         Object version = newEntity("cONtrOl", "Name1").version
 
         then:
-        version.name == "Name1" xxx transaction closed here
+        version.name == "Name1"
         version.id != null
         version.abbreviation == "Abbr1"
 

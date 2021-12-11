@@ -102,6 +102,7 @@ public class EntityVersion {
         else
             map = new HashMap<>(properties);
         return new EntityVersion(null, name, abbreviation, null,
-                map, new Change(Instant.now()), Instant.now(), null, false);
+                map, new Change(Instant.now()),
+                Instant.now(), null, false);
     }
 }

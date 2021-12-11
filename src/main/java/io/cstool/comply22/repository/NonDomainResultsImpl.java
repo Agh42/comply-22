@@ -5,8 +5,8 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 
@@ -117,7 +117,10 @@ public class NonDomainResultsImpl implements NonDomainResults {
                         "MERGE (r)-[:BEGINS_WITH]->(c)",
                 Map.of("timeline", timeline,
                         "changeType", changeType,
-                        "timestamp", LocalDateTime.ofInstant(timestamp, ZoneOffset.UTC)));
+                        "timestamp", ZonedDateTime.ofInstant(timestamp,
+                                ZoneId.of("UTC"))
+                )
+        );
     }
 
 }
