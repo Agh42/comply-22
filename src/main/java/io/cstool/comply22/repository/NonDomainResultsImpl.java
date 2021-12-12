@@ -5,10 +5,10 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
+
+import static io.cstool.comply22.adapter.TemporalFieldConverter.toGraphTime;
 
 @Slf4j
 public class NonDomainResultsImpl implements NonDomainResults {
@@ -112,13 +112,13 @@ public class NonDomainResultsImpl implements NonDomainResults {
 
     @Override
     public void initializeTimeline(String timeline, String changeType, Instant timestamp) {
-        this.execute("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:$changeType, recorded: $timestamp}) " +
+        this.execute("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:$changeType, recorded: $timestamp, transactionTime: $taTimestamp}) " +
                         "WITH r,c " +
                         "MERGE (r)-[:BEGINS_WITH]->(c)",
                 Map.of("timeline", timeline,
                         "changeType", changeType,
-                        "timestamp", ZonedDateTime.ofInstant(timestamp,
-                                ZoneId.of("UTC"))
+                        "timestamp", toGraphTime(timestamp),
+                        "taTimestamp", toGraphTime(Instant.now())
                 )
         );
     }

@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import static io.cstool.comply22.entity.Change.ChangeType.ROOT;
+import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
 @Service
 @Slf4j
@@ -45,5 +47,14 @@ public class TimelineService {
 
     public Change findById(Long id) {
         return changeRepository.findById(id).orElseThrow();
+    }
+
+    public Optional<Change> findFirstChange(String realityName) {
+        realityName = timeLineOrDefault(realityName);
+        var reality = realityRepository.findByName(realityName)
+                .stream().findFirst();
+        if (reality.isEmpty())
+            return Optional.empty();
+        return Optional.ofNullable(reality.get().getBeginsWith());
     }
 }

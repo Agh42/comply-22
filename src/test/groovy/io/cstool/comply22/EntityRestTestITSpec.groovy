@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import groovy.json.JsonSlurper
 import io.cstool.comply22.dto.request.CreateEntityDto
+import io.cstool.comply22.entity.Change
 import io.cstool.comply22.entity.PerpetualEntity
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -149,6 +150,22 @@ class EntityRestTestITSpec extends Specification {
 
         version.change != null
         version.change.id > 0
+    }
+
+    def "Find root change"(){
+        when: "Request the root change of the default timeline"
+        def json = restTemplate.getForObject(
+                "/api/v1/timelines/first",
+                JsonNode)
+        def changeResponse = jsonSlurper.parseText(json.toString())
+
+        then: "the change was found with correct values"
+        with(changeResponse) {
+            id > 0
+            type == Change.ChangeType.ROOT
+            Instant.parse(recorded) < Instant.now()
+            Instant.parse(transactionTime) < Instant.now()
+        }
     }
 
     def "Create a new entity"() {
