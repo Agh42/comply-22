@@ -19,6 +19,7 @@ import java.time.Instant
 
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT
 import static io.cstool.comply22.entity.Change.ChangeType.UPDATE
+import static java.time.Instant.now
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 //  add /history to return the current anchor/versionOfs/version DTO
@@ -99,14 +100,14 @@ class EntityRestTestITSpec extends Specification {
     @Ignore
     def "Get version at point in time"() {
         given:
-        def beforeCreation = Instant.now()
+        def beforeCreation = now()
         def entity = newEntity()
         String id = entity.entity.id
-        def beforeChange = Instant.now()
-        def afterChange = Instant.now()
+        def beforeChange = now()
+        def afterChange = now()
 
         when: "get the last still valid version as of now"
-        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + Instant.now().toString(),
+        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + now().toString(),
                 ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
 
@@ -123,7 +124,7 @@ class EntityRestTestITSpec extends Specification {
 
     def "Get latest version of an entity"() {
         given:
-        def beforeCreation = Instant.now()
+        def beforeCreation = now()
         def dto = newEntity("Control", "Name1")
         Long id = dto.entity.id
 
@@ -143,7 +144,7 @@ class EntityRestTestITSpec extends Specification {
         version.dynamicProperties.keyInt == 42
         version.dynamicProperties.keyDouble == 4.2
 
-        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) < now()
         Instant.parse(version.from) > beforeCreation
         version.until == null
         (!version.deleted)
@@ -163,14 +164,14 @@ class EntityRestTestITSpec extends Specification {
         with(changeResponse) {
             id > 0
             type == Change.ChangeType.ROOT
-            Instant.parse(recorded) < Instant.now()
-            Instant.parse(transactionTime) < Instant.now()
+            Instant.parse(recorded) < now()
+            Instant.parse(transactionTime) < now()
         }
     }
 
     def "Create a new entity"() {
         when:
-        def beforeCreation = Instant.now()
+        def beforeCreation = now()
         Object version = newEntity("cONtrOl", "Name1").version
 
         then:
@@ -183,7 +184,7 @@ class EntityRestTestITSpec extends Specification {
         version.dynamicProperties.keyInt == 42
         version.dynamicProperties.keyDouble == 4.2
 
-        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) < now()
         Instant.parse(version.from) > beforeCreation
         version.until == null
         (!version.deleted)
@@ -202,9 +203,9 @@ class EntityRestTestITSpec extends Specification {
             id > 0
             type == INSERT
             Instant.parse(recorded) > beforeCreation
-            Instant.parse(recorded) < Instant.now()
+            Instant.parse(recorded) < now()
             Instant.parse(transactionTime) > beforeCreation
-            Instant.parse(transactionTime) < Instant.now()
+            Instant.parse(transactionTime) < now()
             nextChange == null
             tipOf != null
         }
@@ -213,7 +214,7 @@ class EntityRestTestITSpec extends Specification {
     @Ignore
     def "Create a relation between entities"() {
         when:
-        def beforeCreation = Instant.now()
+        def beforeCreation = now()
         Object response1 = newEntity("cONtrOl", "Name1")
         Object response2 = newEntity("aSSet", "Name2")
 
@@ -224,13 +225,13 @@ class EntityRestTestITSpec extends Specification {
 
     def "update an entity"() {
         given: "an entity"
-        def beforeCreation = Instant.now()
-        def label = "Control"
+        def beforeCreation = now()
+        def label = "MyType"
         def dto = newEntity(label, "Name1")
         Long id = dto.entity.id
 
         when: "the initial version is retrieved"
-        def json = restTemplate.getForObject("/api/v1/entities/control/" + id,
+        def json = restTemplate.getForObject("/api/v1/entities/mytype/" + id,
                 JsonNode)
         def response = jsonSlurper.parseText(json.toString())
         def version = response.version
@@ -246,7 +247,7 @@ class EntityRestTestITSpec extends Specification {
         version.dynamicProperties.keyInt == 42
         version.dynamicProperties.keyDouble == 4.2
 
-        Instant.parse(version.from) < Instant.now()
+        Instant.parse(version.from) < now()
         Instant.parse(version.from) > beforeCreation
         version.until == null
         (!version.deleted)
@@ -264,26 +265,26 @@ class EntityRestTestITSpec extends Specification {
         with (changeResponse) {
             lastModifiedBy == null
             Instant.parse(recorded) > beforeCreation
-            Instant.parse(recorded) < Instant.now()
+            Instant.parse(recorded) < now()
             Instant.parse(transactionTime) > beforeCreation
-            Instant.parse(transactionTime) < Instant.now()
+            Instant.parse(transactionTime) < now()
             nextChange == null
             type == INSERT
             tipOf.id != null
         }
 
         when: "the entity is modified"
-        def beforeUpdate = Instant.now()
+        def beforeUpdate = now()
         response.version.name = "Changed name"
 
-        HttpEntity<String> request = new HttpEntity<>(response.toString())
+        //HttpEntity<JsonNode> request = new HttpEntity<>(response)
         restTemplate.put(
-                "/api/v1/entities/${label}",
-                request)
-        def afterUpdate = Instant.now()
+                String.format("/api/v1/entities/mytype/%s", response.entity.id),
+                response)
+        def afterUpdate = now()
 
         and: "the entity is requested again"
-        json = restTemplate.getForObject(String.format("/api/v1/entities/control/%s",
+        json = restTemplate.getForObject(String.format("/api/v1/entities/mytype/%s",
                 response.entity.id),
                 JsonNode)
         def updatedResponse = jsonSlurper.parseText(json.toString())
@@ -300,7 +301,7 @@ class EntityRestTestITSpec extends Specification {
         updatedVersion.dynamicProperties.keyInt == 42
         updatedVersion.dynamicProperties.keyDouble == 4.2
 
-        Instant.parse(updatedVersion.from) < Instant.now()
+        Instant.parse(updatedVersion.from) < now()
         Instant.parse(updatedVersion.from) > beforeCreation
         updatedVersion.until == null
         (!updatedVersion.deleted)
@@ -309,22 +310,22 @@ class EntityRestTestITSpec extends Specification {
         updatedVersion.change.id > 0
 
         when: "the old version is requested"
-        json = restTemplate.getForObject("/api/v1/entities/control/" + response.entity.id
+        json = restTemplate.getForObject("/api/v1/entities/mytype/" + response.entity.id
                 + "/versions/" + oldVersionId,
-                ObjectNode.class)
+                JsonNode)
         def oldVersionResponse = jsonSlurper.parseText(json.toString())
         def oldVersion = oldVersionResponse.version
 
         then: "timestamps of the old version were modified"
-        version.from == oldVersion.until
+        updatedVersion.from == oldVersion.until
 
         when: "the old and new change are requested"
         json = restTemplate.getForObject("/api/v1/timelines/" + version.change.id,
-                ObjectNode.class)
+                JsonNode)
         def newChange = jsonSlurper.parseText(json.toString())
 
         json = restTemplate.getForObject("/api/v1/timelines/" + oldVersion.change.id,
-                ObjectNode.class)
+                JsonNode)
         def oldChange = jsonSlurper.parseText(json.toString())
 
         then: "the timestamps are set correctly"
@@ -332,9 +333,9 @@ class EntityRestTestITSpec extends Specification {
             id == version.change.id
             lastModifiedBy == null
             Instant.parse(recorded) > Instant.parse(oldChange.recorded)
-            Instant.parse(recorded) < Instant.now()
+            Instant.parse(recorded) < now()
             Instant.parse(transactionTime) > Instant.parse(oldChange.transactionTime)
-            Instant.parse(transactionTime) < Instant.now()
+            Instant.parse(transactionTime) < now()
             nextChange == null
             type == UPDATE
         }
@@ -407,7 +408,7 @@ class EntityRestTestITSpec extends Specification {
                         "keyInt", 42,
                         "keyDouble", new Double(4.2d)
                 ),
-                Instant.now()
+                now()
         )
         HttpEntity<CreateEntityDto> request = new HttpEntity<>(new CreateEntityDto(version))
         def json = restTemplate.postForObject("/api/v1/entities/${label}", request, ObjectNode.class)

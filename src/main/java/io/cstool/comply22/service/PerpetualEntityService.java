@@ -149,20 +149,35 @@ public class PerpetualEntityService {
     }
 
     @Transactional
-    public void updateEntity(String timeline, PerpetualEntityRef entity, Instant timestamp,
+    public void updateEntity(String timeline,
+                             String label,
+                             PerpetualEntityRef entity,
+                             Instant timestamp,
                              EntityVersion dtoVersion) {
         timeline = timeLineOrDefault(timeline);
         timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
+        label = capitalize(label);
 
         // FIXME check if timestamp is past previous version's validFom
 
         // Create new version of the entity. This also creates a new change:
         var anchor = entityRepository.findById(entity.getId()).orElseThrow();
+
+        if (!entityRepository.findLabelsForNode(entity.getId()).contains(label))
+            throw new IllegalArgumentException(
+                    String.format("Node ID %s does not match node label %s",
+                            entity.getId(), label)
+            );
+
         var updatedVersion = anchor.update(dtoVersion);
-        anchor = entityRepository.save(anchor);
-        log.debug("Saved entity: {}", anchor);
+        //anchor = entityRepository.save(anchor);
+        //log.debug("Saved entity: {}", anchor);
+        updatedVersion = versionRepository.save(updatedVersion);
+        log.debug("Saved version: {}", updatedVersion);
 
         // Adjust timestamps and move the "current" pointer of the entity forward in this timeline:
+        log.debug("Merging version {} in timeline {} with timestamp {}", updatedVersion.getId(), timeline,
+                timestamp);
         versionRepository.mergeVersionWithEntity(timeline,
                 entity.getId(),
                 updatedVersion.getId(),
@@ -171,9 +186,12 @@ public class PerpetualEntityService {
                 timestamp);
 
         // make the new version's change the tip of this timeline:
+        log.debug("Moving tip of timeline {} forward to change {}",
+                timeline, updatedVersion.getChange().getId());
         changeRepository.mergeWithTimeline(timeline,
                 updatedVersion.getChange().getId());
-        log.debug("Moved tip of timeline {} forward to change {}", timeline, updatedVersion.getChange().getId());
+        log.debug("Moved tip of timeline {} forward to change {}",
+                timeline, updatedVersion.getChange().getId());
 
 //        updatedVersion = versionRepository.save(updatedVersion);
 //        log.debug("Saved updatedVersion: {}", updatedVersion);

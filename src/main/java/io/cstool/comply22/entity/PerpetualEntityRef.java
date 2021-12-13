@@ -1,13 +1,17 @@
 package io.cstool.comply22.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+import static lombok.AccessLevel.PRIVATE;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor(access = PRIVATE)
 public class PerpetualEntityRef {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Long id;
+    private Long id;
 
     public static PerpetualEntityRef of(PerpetualEntity targetNode) {
         if (targetNode==null)

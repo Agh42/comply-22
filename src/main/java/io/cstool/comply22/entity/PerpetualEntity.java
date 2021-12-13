@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static io.cstool.comply22.entity.Change.ChangeType.INSERT;
 import static io.cstool.comply22.entity.Change.ChangeType.UPDATE;
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
@@ -46,11 +45,9 @@ public class PerpetualEntity {
 
     // dynamic relationships:
     @Relationship
-    @JsonProperty(access = READ_ONLY)
     private Map<String, TimedRelation> dynamicRelationships = new HashMap<>();
 
     @Relationship(type = "VERSION_OF", direction = INCOMING)
-    @JsonProperty(access = READ_ONLY)
     private Set<VersionOf> versionOf = new HashSet<>();
 
 //    /**

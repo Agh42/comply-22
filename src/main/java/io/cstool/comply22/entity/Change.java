@@ -65,12 +65,10 @@ public class Change {
      * This always represents the actual time when this change was recorded to the database.
      */
     @CreatedDate
-    @JsonProperty(access = READ_ONLY)
     @ToString.Include
     Instant transactionTime;
 
     @ToString.Include
-    @JsonProperty(access = READ_ONLY)
     private String type;
 
     @Relationship(type = "NEXT", direction = OUTGOING)

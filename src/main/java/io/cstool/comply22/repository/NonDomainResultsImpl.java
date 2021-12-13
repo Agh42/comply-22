@@ -95,7 +95,7 @@ public class NonDomainResultsImpl implements NonDomainResults {
                         "reality", reality,
                         "perpetualEntityId", perpetualEntityId,
                         "newVersionId", newVersionId,
-                        "timestamp", timestamp
+                        "timestamp", toGraphTime(timestamp)
                 ));
     }
 

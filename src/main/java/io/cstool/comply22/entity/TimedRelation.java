@@ -12,8 +12,6 @@ import org.springframework.data.neo4j.core.schema.*;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
-
 @RelationshipProperties
 @Data
 @AllArgsConstructor
@@ -23,7 +21,6 @@ public class TimedRelation {
 
     @Id
     @GeneratedValue
-    @JsonProperty(access = READ_ONLY)
     private Long id;
 
     @TargetNode
@@ -37,10 +34,8 @@ public class TimedRelation {
         return PerpetualEntityRef.of(targetNode);
     }
 
-    @JsonProperty(access = READ_ONLY)
     private Instant from;
 
-    @JsonProperty(access = READ_ONLY)
     private Instant until;
 
     @CompositeProperty

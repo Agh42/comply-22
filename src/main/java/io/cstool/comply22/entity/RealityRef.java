@@ -1,10 +1,16 @@
 package io.cstool.comply22.entity;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+import static lombok.AccessLevel.PRIVATE;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor(access = PRIVATE)
 public class RealityRef {
-    Long id;
+    private Long id;
 
     public static RealityRef of(Reality reality) {
         if (reality==null)

@@ -1,15 +1,15 @@
 package io.cstool.comply22.entity.relations;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.cstool.comply22.entity.EntityVersion;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
+import static lombok.AccessLevel.PRIVATE;
 
 /**
  * Facilitates bitemporal storage of entity states.
@@ -24,15 +24,14 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 @RelationshipProperties
 @Data
 @AllArgsConstructor
+@NoArgsConstructor(access = PRIVATE)
 public class VersionOf {
 
     @Id
     @GeneratedValue
-    @JsonProperty(access = READ_ONLY)
     Long id;
 
     @TargetNode
-    @JsonProperty(access = READ_ONLY)
     EntityVersion entityVersion;
 
     // TODO add from/until fields from version to relation as well

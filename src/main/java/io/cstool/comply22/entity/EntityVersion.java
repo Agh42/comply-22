@@ -3,7 +3,6 @@ package io.cstool.comply22.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cstool.comply22.adapter.DynPropsSerializer;
@@ -21,8 +20,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
-
 @Node("Version")
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
@@ -34,7 +31,6 @@ public class EntityVersion {
 
     @Id
     @GeneratedValue
-    @JsonProperty(access = READ_ONLY)
     private Long id;
 
     @NotNull
@@ -46,7 +42,6 @@ public class EntityVersion {
     private String abbreviation;
 
     @LastModifiedBy
-    @JsonProperty(access = READ_ONLY)
     private String lastModifiedBy;
 
     /**
@@ -69,7 +64,6 @@ public class EntityVersion {
     /**
      * Specifies from which time this version was valid in its timeline.
      */
-    @JsonProperty(access = READ_ONLY)
     private Instant from;
 
     /**
@@ -77,10 +71,8 @@ public class EntityVersion {
      * <p>
      * Will be null for versions that are the current one in their timeline.
      */
-    @JsonProperty(access = READ_ONLY)
     private Instant until;
 
-    @JsonProperty(access = READ_ONLY)
     private boolean deleted;
 
     @JsonGetter("dynamicProperties")
