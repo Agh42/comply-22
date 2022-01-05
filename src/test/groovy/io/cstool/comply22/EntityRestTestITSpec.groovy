@@ -172,7 +172,8 @@ class EntityRestTestITSpec extends Specification {
     def "Create a new entity"() {
         when:
         def beforeCreation = now()
-        Object version = newEntity("cONtrOl", "Name1").version
+        Object entity = newEntity("cONtrOl", "Name1")
+        Object version = entity.version
 
         then:
         version.name == "Name1"
