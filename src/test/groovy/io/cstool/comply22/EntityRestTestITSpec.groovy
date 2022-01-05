@@ -411,8 +411,11 @@ class EntityRestTestITSpec extends Specification {
                 ),
                 now()
         )
+        // FIXME json parse error: null createentitydto["version"]
         HttpEntity<CreateEntityDto> request = new HttpEntity<>(new CreateEntityDto(version))
-        def json = restTemplate.postForObject("/api/v1/entities/${label}", request, ObjectNode.class)
+        def json = restTemplate.postForObject("/api/v1/entities/${label}",
+                request,
+                JsonNode.class)
         def response = jsonSlurper.parseText(json.toString())
         response
     }

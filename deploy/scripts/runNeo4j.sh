@@ -7,6 +7,6 @@ docker run \
 -e 'NEO4J_AUTH=neo4j/secret' \
 -e 'NEO4J_dbms_allow__upgrade=true' \
 --user="$(id -u):$(id -g)" \
---name=comply22-neo4j \
-neo4j:4.2.3
+--name=comply22-neo4j-442 \
+neo4j:4.4.2
 
