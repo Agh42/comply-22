@@ -14,7 +14,7 @@ public class DynPropsSerializer {
      * or Jackson will trip on them during serialization.
      */
     public Map<String, Object> serialize(Map<String, Object> dynamicProperties) {
-        Map<String, Object> result = new HashMap<String, Object>(dynamicProperties.size());
+        Map<String, Object> result = new HashMap<>(dynamicProperties.size());
         dynamicProperties.forEach((k, v) -> {
             if (v instanceof IntegerValue)
                 result.put(k, ((IntegerValue) v).asInt());

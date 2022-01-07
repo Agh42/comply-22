@@ -4,7 +4,6 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cstool.comply22.adapter.DynPropsSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,8 +23,6 @@ import java.util.Map;
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class EntityVersion {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
 
@@ -81,8 +78,11 @@ public class EntityVersion {
     }
 
     @JsonSetter("dynamicProperties")
-    public void deserializeCustomProperties(Map<String, Object> props) {
-        dynamicProperties.clear();
+    public void setCustomProperties(Map<String,Object> props) {
+        if (dynamicProperties == null)
+            dynamicProperties = new HashMap<>();
+        else
+            dynamicProperties.clear();
         dynamicProperties.putAll(props);
     }
 

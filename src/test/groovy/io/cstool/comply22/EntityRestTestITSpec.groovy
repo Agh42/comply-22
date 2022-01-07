@@ -415,7 +415,7 @@ class EntityRestTestITSpec extends Specification {
         HttpEntity<CreateEntityDto> request = new HttpEntity<>(new CreateEntityDto(version))
         def json = restTemplate.postForObject("/api/v1/entities/${label}",
                 request,
-                JsonNode.class)
+                ObjectNode.class)
         def response = jsonSlurper.parseText(json.toString())
         response
     }
