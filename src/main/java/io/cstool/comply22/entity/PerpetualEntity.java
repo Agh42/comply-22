@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -128,5 +129,8 @@ public class PerpetualEntity {
                 .collect(Collectors.toSet());
     }
 
+    public static String capitalize(String label) {
+        return StringUtils.capitalize(label.toLowerCase());
+    }
 
 }

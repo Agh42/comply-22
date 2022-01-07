@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.time.Instant;
 
+import static io.cstool.comply22.entity.PerpetualEntity.capitalize;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
 @CrossOrigin(origins = {"http://cstool.io", "http://comply-22.cstool.io", "https://comply-22.cstool.io",

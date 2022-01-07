@@ -15,13 +15,13 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.cstool.comply22.entity.PerpetualEntity.capitalize;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 import static java.lang.String.format;
 
@@ -107,6 +107,8 @@ public class PerpetualEntityService {
      */
     public EntityVersion find(String label, Long perpetualId, Long versionId) {
         // TODO add custom query to repository to speed up execution
+
+        label = capitalize(label);
         var entity = entityRepository.findById(perpetualId).orElseThrow();
         var version = versionRepository.findById(versionId).orElseThrow();
         // Check entity relationship:
@@ -144,9 +146,7 @@ public class PerpetualEntityService {
         entityRepository.deleteAllByLabel(label);
     }
 
-    private String capitalize(String label) {
-        return StringUtils.capitalize(label.toLowerCase());
-    }
+
 
     @Transactional
     public void updateEntity(String timeline,
