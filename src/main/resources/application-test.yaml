@@ -5,6 +5,7 @@ logging:
       cstool:
         comply22: DEBUG
     spring.data: INFO
-    org.springframework: INFO
+    org.springframework: DEBUG
     com.fasterxml.jackson.core: DEBUG
+    com.fasterxml.jackson: DEBUG
     org.springframework.data.neo4j: DEBUG
