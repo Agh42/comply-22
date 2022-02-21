@@ -229,10 +229,10 @@ class EntityRestTestITSpec extends Specification {
         def beforeCreation = now()
         def label = "MyType"
         def dto = newEntity(label, "Name1")
-        Long id = dto.entity.id
+        Long entityId = dto.entity.id
 
         when: "the initial version is retrieved"
-        def json = restTemplate.getForObject("/api/v1/entities/mytype/" + id,
+        def json = restTemplate.getForObject("/api/v1/entities/mytype/" + entityId,
                 JsonNode)
         def response = jsonSlurper.parseText(json.toString())
         def version = response.version
@@ -278,7 +278,6 @@ class EntityRestTestITSpec extends Specification {
         def beforeUpdate = now()
         response.version.name = "Changed name"
 
-        //HttpEntity<JsonNode> request = new HttpEntity<>(response)
         restTemplate.put(
                 String.format("/api/v1/entities/mytype/%s", response.entity.id),
                 response)
@@ -314,14 +313,13 @@ class EntityRestTestITSpec extends Specification {
         json = restTemplate.getForObject("/api/v1/entities/mytype/" + response.entity.id
                 + "/versions/" + oldVersionId,
                 JsonNode)
-        def oldVersionResponse = jsonSlurper.parseText(json.toString())
-        def oldVersion = oldVersionResponse.version
+        def oldVersion = jsonSlurper.parseText(json.toString()).version
 
         then: "timestamps of the old version were modified"
         updatedVersion.from == oldVersion.until
 
         when: "the old and new change are requested"
-        json = restTemplate.getForObject("/api/v1/timelines/" + version.change.id,
+        json = restTemplate.getForObject("/api/v1/timelines/" + updatedVersion.change.id,
                 JsonNode)
         def newChange = jsonSlurper.parseText(json.toString())
 
@@ -331,10 +329,12 @@ class EntityRestTestITSpec extends Specification {
 
         then: "the timestamps are set correctly"
         with(newChange) {
-            id == version.change.id
+            id == updatedVersion.change.id
             lastModifiedBy == null
             Instant.parse(recorded) > Instant.parse(oldChange.recorded)
             Instant.parse(recorded) < now()
+            Instant.parse(recorded) > beforeUpdate
+            Instant.parse(recorded) < afterUpdate
             Instant.parse(transactionTime) > Instant.parse(oldChange.transactionTime)
             Instant.parse(transactionTime) < now()
             nextChange == null

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -29,6 +30,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @AllArgsConstructor(access = PACKAGE)
 @NoArgsConstructor(access = PRIVATE)
 @ToString(onlyExplicitlyIncluded = true)
+@Slf4j
 public class Change {
     @Id
     @GeneratedValue
@@ -42,12 +44,13 @@ public class Change {
 
     Change(Instant recorded) {
         this.recorded = recorded;
+        log.debug("Created new change, recorded: {}", recorded);
     }
 
     /**
      * The time at which a decision was made about a version. This may be the actual time when this change was recorded
      * in the database. However, it may also be past timestamp specified by the user. This is used to simulate
-     * past recordings.
+     * recordings of past events.
      * <p>
      * See also:
      * <ul>

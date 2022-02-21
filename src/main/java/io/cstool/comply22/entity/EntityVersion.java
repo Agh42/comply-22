@@ -88,13 +88,13 @@ public class EntityVersion {
 
     public static EntityVersion newInstance(String name, String abbreviation,
                                             @Nullable Map<String, Object> properties) {
-        Map<String, Object> map;
+        Map<String, Object> dynamicProperties;
         if (properties == null)
-            map = new HashMap<>();
+            dynamicProperties = new HashMap<>();
         else
-            map = new HashMap<>(properties);
+            dynamicProperties = new HashMap<>(properties);
         return new EntityVersion(null, name, abbreviation, null,
-                map, new Change(Instant.now()),
+                dynamicProperties, new Change(Instant.now()),
                 Instant.now(), null, false);
     }
 }

@@ -7,6 +7,7 @@ import io.cstool.comply22.entity.relations.VersionOf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +23,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class PerpetualEntity {
 
     private static final String LABEL = "Entity";
@@ -69,6 +71,7 @@ public class PerpetualEntity {
     public static PerpetualEntity newInstance(String label) {
         var entity = new PerpetualEntity();
         entity.setCustomLabel(label);
+        log.debug("Create new perpetual entity, label: {}", label);
         return entity;
     }
 
@@ -80,10 +83,11 @@ public class PerpetualEntity {
      * Creates the first version of this entity - when the entity is inserted into the repository.
      */
     public EntityVersion insert(String name, String abbreviation, Map<String, Object> properties,
-                                Instant timestamp) {
+                                Instant recorded) {
         var version = createVersion(name, abbreviation, properties);
         version.getChange().setType(INSERT);
-        version.getChange().setRecorded(timestamp);
+        version.getChange().setRecorded(recorded);
+        log.debug("Create first entity version, recorded: {}", recorded);
         return version;
     }
 
@@ -110,6 +114,7 @@ public class PerpetualEntity {
 
     private EntityVersion createVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version = EntityVersion.newInstance(name, abbreviation, properties);
+        log.debug("Created new entity version, id: {}, change: {}", version.getId(), version.getChange());
         versionOf.add(VersionOf.relationShipTo(version));
 //        currentVersion.add(version);
         return version;

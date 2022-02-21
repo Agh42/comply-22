@@ -69,18 +69,21 @@ public class PerpetualEntityService {
                 dto.getVersion().getDynamicProperties(),
                 timestamp);
         anchor = entityRepository.save(anchor);
-        log.debug("Saved entity: {}", anchor);
+        log.debug("Saved new entity: {}", anchor);
 
         // insert version:
         version = versionRepository.save(version);
-        log.debug("Saved version: {}", version);
+        log.debug("Saved new first version: {}", version);
 
         // make version current:
+        log.debug("Moving current-pointer to version {} on entity {}.", version.getId(), anchor.getId());
         versionRepository.mergeNewVersionWithEntity(anchor.getId(), version.getId());
 
         // update reality tree:
         var change = changeRepository.save(version.getChange());
+        log.debug("Saved change, id: {}, recorded: {}.", change.getId(), change.getRecorded());
         version.setChange(change);
+        log.debug("Making change {} the tip of timeline {}", change.getId(), timeline);
         changeRepository.mergeWithTimeline(timeline, change.getId());
 
         anchor = entityRepository.findById(anchor.getId()).orElseThrow();
@@ -145,8 +148,6 @@ public class PerpetualEntityService {
         label = capitalize(label);
         entityRepository.deleteAllByLabel(label);
     }
-
-
 
     @Transactional
     public void updateEntity(String timeline,
