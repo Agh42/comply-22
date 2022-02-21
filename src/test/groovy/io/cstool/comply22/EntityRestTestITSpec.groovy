@@ -343,7 +343,7 @@ class EntityRestTestITSpec extends Specification {
 
         and: "the new change is now the tip of the timeline"
         newChange.tipOf.id != null
-        oldChange.tipOf.id == null
+        oldChange.tipOf == null
 
         and: "the old change points to the new change"
         oldChange.next.id == newChange.id
