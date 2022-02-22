@@ -6,4 +6,4 @@ logging:
     org.springframework: INFO
     com.fasterxml.jackson.core: INFO
     com.fasterxml.jackson: INFO
-    org.springframework.data.neo4j: DEBUG
+    org.springframework.data.neo4j: INFO
