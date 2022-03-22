@@ -111,11 +111,12 @@ public class NonDomainResultsImpl implements NonDomainResults {
     }
 
     @Override
-    public void initializeTimeline(String timeline, String changeType, Instant timestamp) {
-        this.execute("MERGE (r:Reality{name:$timeline})<-[:TIP_OF]-(c:Change{type:$changeType, recorded: $timestamp, transactionTime: $taTimestamp}) " +
+    public void initializeTimeline(String timeline, String explanation, String changeType, Instant timestamp) {
+        this.execute("MERGE (r:Reality{name:$timeline, explanation:$explanation})<-[:TIP_OF]-(c:Change{type:$changeType, recorded: $timestamp, transactionTime: $taTimestamp}) " +
                         "WITH r,c " +
                         "MERGE (r)-[:BEGINS_WITH]->(c)",
                 Map.of("timeline", timeline,
+                        "explanation", explanation,
                         "changeType", changeType,
                         "timestamp", toGraphTime(timestamp),
                         "taTimestamp", toGraphTime(Instant.now())

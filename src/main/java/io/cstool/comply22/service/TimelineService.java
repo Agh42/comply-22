@@ -37,7 +37,7 @@ public class TimelineService {
                         reality.getBeginsWith().getRecorded())),
                 () -> {
                     realityRepository.initializeTimeline(Reality.MAINSTREAM,
-                            ROOT,
+                            Reality.MAINSTREAM_EXPLANATION, ROOT,
                             Instant.MIN.plus(366, ChronoUnit.DAYS) // earliest time for ChronoField
                     );
                     log.info("Mainstream timeline was created.");

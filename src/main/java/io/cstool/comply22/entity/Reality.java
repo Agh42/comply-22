@@ -19,6 +19,7 @@ import static org.springframework.data.neo4j.core.schema.Relationship.Direction.
 public class Reality {
 
     public static final String MAINSTREAM = "C-137";
+    public static final String MAINSTREAM_EXPLANATION = "The default reality (aka real life, aka Earth-1218).";
 
     @Id
     @GeneratedValue
@@ -31,6 +32,11 @@ public class Reality {
      */
     @ToString.Include
     private String name;
+
+    /**
+     * An optional description.
+     */
+    private String explanation;
 
     /**
      * Is {@code null} only for mainstream timeline.

@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.cstool.comply22.adapter.DynPropsSerializer;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.lang.Nullable;
 
@@ -21,7 +20,7 @@ import java.util.Map;
 
 @Node("Version")
 @Data
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class EntityVersion {
 
     private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
@@ -33,9 +32,11 @@ public class EntityVersion {
     @NotNull
     @Size(max = 255)
     @NotBlank
+    @NonNull
     private String name;
 
     @Size(max = 255)
+    @NonNull
     private String abbreviation;
 
     @LastModifiedBy
@@ -46,11 +47,13 @@ public class EntityVersion {
      */
     @CompositeProperty
     @JsonIgnore
+    @NonNull
     //@JsonSerialize(using = DynPropsSerializer.class, as=Map.class)
     private Map<String, Object> dynamicProperties;
 
     @Relationship(type = "RECORDED_ON")
     @JsonIgnore
+    @NonNull
     private Change change;
 
     @JsonGetter("change")
@@ -61,13 +64,20 @@ public class EntityVersion {
     /**
      * Specifies from which time this version was valid in its timeline.
      */
-    private Instant from;
+    @JsonGetter("from")
+    public Instant getFrom() {
+        return getChange().getRecorded();
+    }
 
     /**
      * Specifies until which time this version was valid in its timeline.
      * <p>
      * Will be null for versions that are the current one in their timeline.
+     * <p>
+     * The value is calculated based on the next related change for this entity in the specified timeline
+     * (because one version is valid for different time periods in different timelines).
      */
+    @Transient
     private Instant until;
 
     private boolean deleted;
@@ -79,10 +89,7 @@ public class EntityVersion {
 
     @JsonSetter("dynamicProperties")
     public void setCustomProperties(Map<String,Object> props) {
-        if (dynamicProperties == null)
-            dynamicProperties = new HashMap<>();
-        else
-            dynamicProperties.clear();
+        dynamicProperties.clear();
         dynamicProperties.putAll(props);
     }
 
@@ -93,8 +100,7 @@ public class EntityVersion {
             dynamicProperties = new HashMap<>();
         else
             dynamicProperties = new HashMap<>(properties);
-        return new EntityVersion(null, name, abbreviation, null,
-                dynamicProperties, new Change(Instant.now()),
-                Instant.now(), null, false);
+        return new EntityVersion(name, abbreviation,
+                dynamicProperties, new Change(Instant.now()));
     }
 }

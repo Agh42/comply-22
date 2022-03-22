@@ -149,11 +149,20 @@ public class PerpetualEntityService {
         entityRepository.deleteAllByLabel(label);
     }
 
+    /**
+     * Updates the most current version of the entity in this timeline.
+     *
+     * @param timeline the timeline or {@code null} for default timeline
+     * @param label the label of the entity - its type
+     * @param entity a reference to the requested entity
+     * @param timestamp the time at which to update the entity or {@code null} for now
+     * @param dtoVersion a new version with values that should be saved
+     */
     @Transactional
-    public void updateEntity(String timeline,
+    public void updateEntity(@Nullable String timeline,
                              String label,
                              PerpetualEntityRef entity,
-                             Instant timestamp,
+                             @Nullable Instant timestamp,
                              EntityVersion dtoVersion) {
         timeline = timeLineOrDefault(timeline);
         timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
@@ -173,6 +182,7 @@ public class PerpetualEntityService {
         var updatedVersion = anchor.update(dtoVersion);
         //anchor = entityRepository.save(anchor);
         //log.debug("Saved entity: {}", anchor);
+
         updatedVersion = versionRepository.save(updatedVersion);
         log.debug("Saved version: {}", updatedVersion);
 

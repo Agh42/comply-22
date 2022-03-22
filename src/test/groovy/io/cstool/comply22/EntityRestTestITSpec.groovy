@@ -98,28 +98,83 @@ class EntityRestTestITSpec extends Specification {
     }
 
     @Ignore
-    def "Get version at point in time"() {
-        given:
+    def "Get an old version via point in time"() {
+    }
+
+    def "Get the current version via point in time"() {
+        given: "an entity"
         def beforeCreation = now()
-        def entity = newEntity()
-        String id = entity.entity.id
-        def beforeChange = now()
-        def afterChange = now()
+        def label = "MyType"
+        def dto = newEntity(label, "Name1")
+        Long entityId = dto.entity.id
 
-        when: "get the last still valid version as of now"
-        def json = restTemplate.getForObject("/api/v1/entities/" + id + "?timestamp=" + now().toString(),
-                ObjectNode.class)
+        when: "the initial version is retrieved"
+        def json = restTemplate.getForObject("/api/v1/entities/mytype/" + entityId,
+                JsonNode)
         def response = jsonSlurper.parseText(json.toString())
+        def version = response.version
+        def oldVersionId = response.version.id
 
-        then: "the version is retrieved"
-        response.entity.id != null
-        response.entity.labels == ["Label1", "Label2"]
+        then: "all values are present"
+        version.name == "Name1"
+        version.id != null
+        version.abbreviation == "Abbr1"
 
-        response.version.name == "Name1"
-        response.version.dynamicProperties.keyString == "value1"
-        response.version.dynamicProperties.keyDate == testDate
-        response.version.dynamicProperties.keyInt == 42
-        response.version.dynamicProperties.keyDouble == 4.2
+        version.dynamicProperties.keyString == "value1"
+        version.dynamicProperties.keyDate == testDate
+        version.dynamicProperties.keyInt == 42
+        version.dynamicProperties.keyDouble == 4.2
+
+        Instant.parse(version.from) < now()
+        Instant.parse(version.from) > beforeCreation
+        version.until == null
+        (!version.deleted)
+
+        version.change != null
+        version.change.id > 0
+
+        when: "its change is requested"
+        def jsonChange = restTemplate.getForObject(
+                String.format("/api/v1/timelines/%s", version.change.id),
+                JsonNode)
+        def changeResponse = jsonSlurper.parseText(jsonChange.toString())
+
+        then: "all timestamps are set correctly"
+        with (changeResponse) {
+            lastModifiedBy == null
+            Instant.parse(recorded) > beforeCreation
+            Instant.parse(recorded) < now()
+            Instant.parse(transactionTime) > beforeCreation
+            Instant.parse(transactionTime) < now()
+            nextChange == null
+            type == INSERT
+            tipOf.id != null
+        }
+
+        when: "the entity is modified"
+        def beforeUpdate = now()
+        response.version.name = "Changed name"
+        restTemplate.put(
+                String.format("/api/v1/entities/mytype/%s", response.entity.id),
+                response)
+        def afterUpdate = now()
+
+        and: "a timestamp is used to get the current version"
+        json = restTemplate.getForObject("/api/v1/entities/mytype/$response.entity.id?timestamp=" + now().toString(),
+                JsonNode)
+        def updatedResponse = jsonSlurper.parseText(json.toString())
+
+        then: "the current version is retrieved"
+        updatedResponse.entity.id != null
+        updatedResponse.version != null // FIXME xxx no version is retreived, check query
+
+        with(updatedResponse.version) {
+            name == "Name1"
+            dynamicProperties.keyString == "value1"
+            dynamicProperties.keyDate == testDate
+            dynamicProperties.keyInt == 42
+            dynamicProperties.keyDouble == 4.2
+        }
     }
 
     def "Get latest version of an entity"() {
@@ -224,7 +279,7 @@ class EntityRestTestITSpec extends Specification {
 
     }
 
-    def "update an entity"() {
+    def "Update an entity"() {
         given: "an entity"
         def beforeCreation = now()
         def label = "MyType"
@@ -347,6 +402,10 @@ class EntityRestTestITSpec extends Specification {
 
         and: "the old change points to the new change"
         oldChange.next.id == newChange.id
+
+        //xxx abort if version is deleted:true
+        //xxx only proceed if version is current in this timeline
+        //xxx different method: create new reality if version is older one in this timeline
     }
 
     @Ignore

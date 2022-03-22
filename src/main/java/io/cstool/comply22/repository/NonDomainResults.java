@@ -32,7 +32,7 @@ public interface NonDomainResults {
      * If the creation of the timeline is not associated with an entity change, use the change
      * type {@code ChangeType.ROOT}.
      */
-    void initializeTimeline(String timeline, String changeType, Instant timestamp);
+    void initializeTimeline(String timeline, String explanation, String changeType, Instant timestamp);
 
 
 }
