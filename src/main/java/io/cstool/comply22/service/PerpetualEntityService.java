@@ -19,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Objects;
 
 import static io.cstool.comply22.entity.PerpetualEntity.capitalize;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNullElse;
 
 @Service
 @Slf4j
@@ -59,7 +59,7 @@ public class PerpetualEntityService {
                                          Instant timestamp, CreateEntityDto dto) {
         label = capitalize(label);
         timeline = timeLineOrDefault(timeline);
-        timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
+        timestamp = requireNonNullElse(timestamp, Instant.now());
 
         // insert entity:
         var anchor = PerpetualEntity.newInstance(label);
@@ -76,8 +76,8 @@ public class PerpetualEntityService {
         log.debug("Saved new first version: {}", version);
 
         // make version current:
-        log.debug("Moving current-pointer to version {} on entity {}.", version.getId(), anchor.getId());
-        versionRepository.mergeNewVersionWithEntity(anchor.getId(), version.getId());
+        log.debug("Creating current-pointer to version {} from entity {}.", version.getId(), anchor.getId());
+        versionRepository.mergeCurrentVersionWithNewEntity(anchor.getId(), version.getId());
 
         // update reality tree:
         var change = changeRepository.save(version.getChange());
@@ -165,7 +165,7 @@ public class PerpetualEntityService {
                              @Nullable Instant timestamp,
                              EntityVersion dtoVersion) {
         timeline = timeLineOrDefault(timeline);
-        timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
+        timestamp = requireNonNullElse(timestamp, Instant.now());
         label = capitalize(label);
 
         // FIXME check if timestamp is past previous version's validFom

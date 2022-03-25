@@ -3,6 +3,7 @@ package io.cstool.comply22.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.cstool.comply22.entity.relations.TimedRelation;
 import io.cstool.comply22.entity.relations.VersionOf;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -57,7 +57,8 @@ public class NonDomainResultsImpl implements NonDomainResults {
     }
 
     /**
-     * Point reality tip to the new change. Link previous tip to new tip.
+     * Point reality tip to the new change. Link previous tip to new tip. This inserts the new change at the
+     * tip of the timeline.
      */
     public void mergeWithTimeline(String timeline, Long changeId) {
         this.execute("MATCH (r:Reality{name:$timeline})<-[oto:TIP_OF]-(oldtip:Change) " +
@@ -100,7 +101,7 @@ public class NonDomainResultsImpl implements NonDomainResults {
     }
 
     @Override
-    public void mergeNewVersionWithEntity(Long perpetualEntityId, Long newVersionId) {
+    public void mergeCurrentVersionWithNewEntity(Long perpetualEntityId, Long newVersionId) {
         this.execute("MATCH (v:Version)-[:VERSION_OF]->(e:Entity) " +
                         "WHERE id(v) = $newVersionId AND id(e) = $perpetualEntityId " +
                         "MERGE (e)-[:CURRENT]->(v)",

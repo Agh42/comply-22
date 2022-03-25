@@ -3,10 +3,7 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -14,6 +11,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 
@@ -74,13 +72,30 @@ public class Change {
     @ToString.Include
     private String type;
 
+    /**
+     * The next change in any timeline on any entity or relation.
+     */
     @Relationship(type = "NEXT", direction = OUTGOING)
     @JsonIgnore
+    @Nullable
     private Change nextChange;
+
+    /**
+     * The next change in any timeline on the same entity or relation.
+     */
+    @Relationship(type = "NEXT_RELATED", direction = OUTGOING)
+    @JsonIgnore
+    @Nullable
+    private Change nextRelatedChange;
 
     @JsonGetter("next")
     private ChangeRef getNextChangeRef() {
         return ChangeRef.of(nextChange);
+    }
+
+    @JsonGetter("nextRelated")
+    private ChangeRef getNextRelatedChangeRef() {
+        return ChangeRef.of(nextRelatedChange);
     }
 
     @Relationship(type = "TIP_OF", direction = OUTGOING)
@@ -121,6 +136,11 @@ public class Change {
         public static final String INSERT = "INSERT";
         public static final String UPDATE = "UPDATE";
         public static final String DELETE = "DELETE";
+
+        public static final String INSERT_REL = "INSERT_REL";
+        public static final String UPDATE_REL = "UPDATE_REL";
+        public static final String DELETE_REL = "DELETE_REL";
+
     }
 
 

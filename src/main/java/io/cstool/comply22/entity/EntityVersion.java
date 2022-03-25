@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import io.cstool.comply22.adapter.DynPropsSerializer;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.lang.Nullable;
 
@@ -20,7 +19,8 @@ import java.util.Map;
 
 @Node("Version")
 @Data
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class EntityVersion {
 
     private static final DynPropsSerializer dynPropsSerializer = new DynPropsSerializer();
@@ -74,11 +74,13 @@ public class EntityVersion {
      * <p>
      * Will be null for versions that are the current one in their timeline.
      * <p>
-     * The value is calculated based on the next related change for this entity in the specified timeline
-     * (because one version is valid for different time periods in different timelines).
+     * The value is calculated based on the next related change for this entity in the specified timeline. One
+     * version is valid for different time periods in different timelines dependent on when the next change is recorded.
      */
-    @Transient
-    private Instant until;
+    @JsonGetter("until")
+    public Instant getUntil() {
+        return (change.getNextRelatedChange() == null) ? null : change.getNextRelatedChange().getRecorded();
+    }
 
     private boolean deleted;
 
@@ -88,8 +90,11 @@ public class EntityVersion {
     }
 
     @JsonSetter("dynamicProperties")
-    public void setCustomProperties(Map<String,Object> props) {
-        dynamicProperties.clear();
+    public void setCustomProperties(Map<String, Object> props) {
+        if (dynamicProperties == null)
+            dynamicProperties = new HashMap<>();
+        else
+            dynamicProperties.clear();
         dynamicProperties.putAll(props);
     }
 
@@ -100,7 +105,10 @@ public class EntityVersion {
             dynamicProperties = new HashMap<>();
         else
             dynamicProperties = new HashMap<>(properties);
-        return new EntityVersion(name, abbreviation,
-                dynamicProperties, new Change(Instant.now()));
+        return new EntityVersion(
+                name,
+                abbreviation,
+                dynamicProperties,
+                new Change(Instant.now()));
     }
 }

@@ -1,10 +1,12 @@
-package io.cstool.comply22.entity;
+package io.cstool.comply22.entity.relations;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.cstool.comply22.adapter.DynPropsSerializer;
+import io.cstool.comply22.entity.PerpetualEntity;
+import io.cstool.comply22.entity.PerpetualEntityRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.*;

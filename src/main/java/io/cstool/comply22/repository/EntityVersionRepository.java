@@ -14,8 +14,8 @@ public interface EntityVersionRepository extends Neo4jRepository<EntityVersion, 
     /**
      * Find the last known version of the entity in the given timeline.
      * <p>
-     * If the entity has been deleted this will return the last known version. This version will have its validity
-     * period set in the past and additionally carry the "deleted" flag.
+     * If the entity has been deleted this will return the last known version. This version will carry the
+     * "deleted" flag.
      */
     @Query("MATCH p = (e:Entity)-[c:CURRENT]->(v:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$timeline}) " +
             "WHERE id(e) = $perpetualId " +

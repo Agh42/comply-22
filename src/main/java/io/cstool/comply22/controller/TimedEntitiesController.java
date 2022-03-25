@@ -16,7 +16,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.time.Instant;
 
-import static io.cstool.comply22.entity.PerpetualEntity.capitalize;
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
 @CrossOrigin(origins = {"http://cstool.io", "http://comply-22.cstool.io", "https://comply-22.cstool.io",
@@ -52,8 +51,6 @@ public class TimedEntitiesController {
                 timestamp,
                 dto.getVersion());
     }
-
-
 
     @DeleteMapping("/{label}")
     public void deleteAll(@PathVariable @NotEmpty  String label) {
@@ -105,6 +102,8 @@ public class TimedEntitiesController {
      *
      * @param id            The ID for the entity (required)
      * @param timestamp     Request the version that was valid during this point in time (optional)
+     * @param label         a user-defined type of entity to request
+     * @param timeline      The name of the timeline or none for the default teimeline
      */
     @GetMapping(value = {"/{label}/{id}"})
     public EntityVersionDto getVersion(

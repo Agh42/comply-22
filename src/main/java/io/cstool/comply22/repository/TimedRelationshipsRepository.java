@@ -1,6 +1,6 @@
 package io.cstool.comply22.repository;
 
-import io.cstool.comply22.entity.TimedRelation;
+import io.cstool.comply22.entity.relations.TimedRelation;
 import org.springframework.data.repository.Repository;
 
 public interface TimedRelationshipsRepository extends Repository<TimedRelation, Long> {

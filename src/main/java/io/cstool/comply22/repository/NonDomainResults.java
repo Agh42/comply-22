@@ -22,13 +22,16 @@ public interface NonDomainResults {
     @Transactional
     void mergeVersionWithEntity(String reality, Long perpetualEntityId, Long newVersionId, Instant timestamp);
 
-    /** Set the first version of an entity as its current version.
+    /** Set the very first version of a new entity as its current version.
      */
     @Transactional
-    void mergeNewVersionWithEntity(Long perpetualEntityId, Long newVersionId);
+    void mergeCurrentVersionWithNewEntity(Long perpetualEntityId, Long newVersionId);
 
     /**
      * Initialize the named timeline with a first change of the given type.
+     * <p>
+     * I.e. when updating a past version of an entity, this change creates a branching point into a new reality.
+     * <p>
      * If the creation of the timeline is not associated with an entity change, use the change
      * type {@code ChangeType.ROOT}.
      */
