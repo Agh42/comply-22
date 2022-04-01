@@ -403,7 +403,7 @@ class EntityRestTestITSpec extends Specification {
 
         and: "the old change points to the new change"
         oldChange.next.id == newChange.id
-        oldChange.nextRelated.id == newChange.id
+        oldChange.nextRelated.first().id == newChange.id
 
         //xxx abort if version is deleted
         //xxx only proceed if version is current in this timeline
