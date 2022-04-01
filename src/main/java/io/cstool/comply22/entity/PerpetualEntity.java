@@ -93,14 +93,13 @@ public class PerpetualEntity {
     }
 
     /**
-     * Creates another version of this entity - when the entity is updated.
+     * Creates another version of this entity when the entity is updated.
      */
-    public EntityVersion update(EntityVersion version) {
+    public EntityVersion update(EntityVersion versionDto) {
         var newVersion = createVersion(
-                version.getName(),
-                version.getAbbreviation(),
-                version.getDynamicProperties());
-        versionOf.add(VersionOf.relationShipTo(newVersion));
+                versionDto.getName(),
+                versionDto.getAbbreviation(),
+                versionDto.getDynamicProperties());
         newVersion.getChange().setType(UPDATE);
         return newVersion;
     }
@@ -116,7 +115,7 @@ public class PerpetualEntity {
     private EntityVersion createVersion(String name, String abbreviation, Map<String, Object> properties) {
         var version = EntityVersion.newInstance(name, abbreviation, properties);
         log.debug("Created new entity version, id: {}, change: {}", version.getId(), version.getChange());
-        versionOf.add(VersionOf.relationShipTo(version));
+        versionOf.add(VersionOf.relationshipTo(version));
 //        currentVersion.add(version);
         return version;
     }

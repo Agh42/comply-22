@@ -76,8 +76,7 @@ public class NonDomainResultsImpl implements NonDomainResults {
     /**
      * <ul>
      * <li>Find most recent version of entity in the given timeline.
-     * <li>Set the "validUntil" timestamp of its pointer to 'now'.
-     * <li>Set "validFrom" on the pointer of the new version to the same 'now'.
+     * <li>Set "recorded" time on its change to provided timestamp.
      * <li>Then move the current-pointer of the entity to the new version.
      * </ul>
      */
@@ -87,9 +86,9 @@ public class NonDomainResultsImpl implements NonDomainResults {
                 "MATCH p = (e:Entity)-[c:CURRENT]->(old:Version)-[:RECORDED_ON|NEXT|TIP_OF*]->(r:Reality{name:$reality}) " +
                         "WHERE id(e) = $perpetualEntityId " +
                         "WITH e,c,old " +
-                        "MATCH (nv:Version) WHERE id(nv) = $newVersionId " +
+                        "MATCH (nv:Version)-[:RECORDED_ON]->(nvc:Change) WHERE id(nv) = $newVersionId " +
                         "DELETE c " +
-                        "SET nv.from = $timestamp " +
+                        "SET nvc.recorded = $timestamp " +
                         "MERGE (e)-[:CURRENT]->(nv) ",
                 Map.of(
                         "reality", reality,

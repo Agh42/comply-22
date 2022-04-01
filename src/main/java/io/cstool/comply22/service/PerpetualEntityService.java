@@ -171,10 +171,14 @@ public class PerpetualEntityService {
         var previousLatestVersion = versionRepository
                 .findLatestVersion(label, timeline, entity.getId()).orElseThrow(
                         () -> new IllegalArgumentException(String.format("Entity %s does not have a version that " +
-                                "can be updated in timeline %s", entity.getId(), timeline))
+                                "can be updated in timeline %s.", entity.getId(), timeline))
                 );
 
-        // FIXME check if timestamp is past previous version's validFom
+        if ( timestamp.isBefore(previousLatestVersion.getChange().getRecorded()) )
+            throw new IllegalArgumentException(
+                    String.format("New version with timestamp %s cannot be saved before previous version " +
+                            "with timestamp %s in timeline %s for entity %s. Use a later timestamp or create a new timeline.",
+                            timestamp, previousLatestVersion.getFrom(), timeline, entity.getId()));
 
         // Create new version of the entity. This also creates a new change:
         var anchor = entityRepository.findById(entity.getId()).orElseThrow();
@@ -186,11 +190,12 @@ public class PerpetualEntityService {
             );
 
         var updatedVersion = anchor.update(dtoVersion);
-        //anchor = entityRepository.save(anchor);
-        //log.debug("Saved entity: {}", anchor);
 
         updatedVersion = versionRepository.save(updatedVersion);
         log.debug("Saved version: {}", updatedVersion);
+
+        anchor = entityRepository.save(anchor);
+        log.debug("Saved entity: {}", anchor);
 
         // Adjust timestamps and move the "current" pointer of the entity forward in this timeline:
         log.debug("Merging version {} in timeline {} with timestamp {}", updatedVersion.getId(), timeline,
@@ -209,15 +214,16 @@ public class PerpetualEntityService {
                 updatedVersion.getChange().getId());
         log.debug("Moved tip of timeline {} forward to change {}",
                 timeline, updatedVersion.getChange().getId());
+        var updatedChange = changeRepository.findById(updatedVersion.getChange().getId()).orElseThrow();
 
         // link previous change on same entity to new change:
         log.debug("Linking related changes  {} -> {} in timeline {}",
                 previousLatestVersion.getChange(), updatedVersion.getChange().getId(), timeline);
-        previousLatestVersion.getChange().getNextRelatedChanges().add(updatedVersion.getChange());
+        previousLatestVersion = versionRepository.findById(previousLatestVersion.getId()).orElseThrow();
+        previousLatestVersion.getChange().getNextRelatedChanges().add(updatedChange);
         changeRepository.save(previousLatestVersion.getChange());
         log.debug("Linked related changes  {} -> {} in timeline {}",
                 previousLatestVersion.getChange(), updatedVersion.getChange().getId(), timeline);
-
 
 //        updatedVersion = versionRepository.save(updatedVersion);
 //        log.debug("Saved updatedVersion: {}", updatedVersion);

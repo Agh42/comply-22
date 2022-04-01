@@ -325,7 +325,7 @@ class EntityRestTestITSpec extends Specification {
             Instant.parse(transactionTime) > beforeCreation
             Instant.parse(transactionTime) < now()
             nextChange == null
-            nextRelated  == null
+            nextRelated  == []
             type == INSERT
             tipOf.id != null
         }

@@ -36,7 +36,7 @@ public class VersionOf {
 
     // TODO add from/until fields from version to relation as well
 
-    public static VersionOf relationShipTo(EntityVersion version) {
+    public static VersionOf relationshipTo(EntityVersion version) {
         return new VersionOf(null, version);
     }
 }
