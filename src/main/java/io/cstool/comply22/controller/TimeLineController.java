@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
-@CrossOrigin(origins = {"http://cstool.io", "http://comply-22.cstool.io", "https://comply-22.cstool.io",
-        "http://localhost:3000"})
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @Validated
 @RequestMapping("/api/v1/timelines")

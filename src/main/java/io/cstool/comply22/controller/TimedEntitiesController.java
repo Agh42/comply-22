@@ -18,8 +18,7 @@ import java.time.Instant;
 
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
-@CrossOrigin(origins = {"http://cstool.io", "http://comply-22.cstool.io", "https://comply-22.cstool.io",
-        "http://localhost:3000"})
+@CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @Validated
 @RequestMapping("/api/v1/entities")

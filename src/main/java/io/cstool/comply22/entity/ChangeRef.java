@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static lombok.AccessLevel.PRIVATE;
 
 @Data
@@ -17,5 +20,11 @@ public class ChangeRef {
         if (change == null)
             return null;
         return new ChangeRef(change.getId());
+    }
+
+    public static Set<ChangeRef> of(Set<Change> nextRelatedChange) {
+        return nextRelatedChange.stream()
+                .map(ChangeRef::of)
+                .collect(Collectors.toSet());
     }
 }

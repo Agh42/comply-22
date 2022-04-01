@@ -62,7 +62,7 @@ public class EntityVersion {
     }
 
     /**
-     * Specifies from which time this version was valid in its timeline.
+     * Specifies from which point in time this version was valid in its timeline.
      */
     @JsonGetter("from")
     public Instant getFrom() {
@@ -70,16 +70,18 @@ public class EntityVersion {
     }
 
     /**
-     * Specifies until which time this version was valid in its timeline.
+     * Specifies until which point in time this version was valid in a timeline.
      * <p>
-     * Will be null for versions that are the current one in their timeline.
+     * Will be null for versions that are the current one in a timeline.
      * <p>
      * The value is calculated based on the next related change for this entity in the specified timeline. One
      * version is valid for different time periods in different timelines dependent on when the next change is recorded.
      */
     @JsonGetter("until")
-    public Instant getUntil() {
-        return (change.getNextRelatedChange() == null) ? null : change.getNextRelatedChange().getRecorded();
+    public @Nullable Instant getUntil() {
+        return (change.getNextRelatedChanges() == null || change.getNextRelatedChanges().isEmpty())
+                ? null
+                : change.getNextRelatedChanges().iterator().next().getRecorded();
     }
 
     private boolean deleted;

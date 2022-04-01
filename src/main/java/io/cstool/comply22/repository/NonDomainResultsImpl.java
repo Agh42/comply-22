@@ -89,7 +89,6 @@ public class NonDomainResultsImpl implements NonDomainResults {
                         "WITH e,c,old " +
                         "MATCH (nv:Version) WHERE id(nv) = $newVersionId " +
                         "DELETE c " +
-                        "SET old.until = $timestamp " +
                         "SET nv.from = $timestamp " +
                         "MERGE (e)-[:CURRENT]->(nv) ",
                 Map.of(

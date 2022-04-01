@@ -325,6 +325,7 @@ class EntityRestTestITSpec extends Specification {
             Instant.parse(transactionTime) > beforeCreation
             Instant.parse(transactionTime) < now()
             nextChange == null
+            nextRelated  == null
             type == INSERT
             tipOf.id != null
         }
@@ -402,8 +403,9 @@ class EntityRestTestITSpec extends Specification {
 
         and: "the old change points to the new change"
         oldChange.next.id == newChange.id
+        oldChange.nextRelated.id == newChange.id
 
-        //xxx abort if version is deleted:true
+        //xxx abort if version is deleted
         //xxx only proceed if version is current in this timeline
         //xxx different method: create new reality if version is older one in this timeline
     }

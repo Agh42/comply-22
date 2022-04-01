@@ -3,7 +3,10 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -14,6 +17,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static lombok.AccessLevel.PACKAGE;
@@ -74,6 +79,9 @@ public class Change {
 
     /**
      * The next change in any timeline on any entity or relation.
+     *  <p>
+     *  There may be multiple next changes if the entity splits off into different timelines.
+     *  Only one will be accessible here. It is selected by timeline specified in the query.
      */
     @Relationship(type = "NEXT", direction = OUTGOING)
     @JsonIgnore
@@ -82,11 +90,13 @@ public class Change {
 
     /**
      * The next change in any timeline on the same entity or relation.
+     * <p>
+     * There may be multiple next related changes if the entity splits off into different timelines.
+     * Only one will be accessible here. It is selected by timeline specified in the query.
      */
     @Relationship(type = "NEXT_RELATED", direction = OUTGOING)
     @JsonIgnore
-    @Nullable
-    private Change nextRelatedChange;
+    private Set<Change> nextRelatedChanges = new HashSet<>();
 
     @JsonGetter("next")
     private ChangeRef getNextChangeRef() {
@@ -94,14 +104,13 @@ public class Change {
     }
 
     @JsonGetter("nextRelated")
-    private ChangeRef getNextRelatedChangeRef() {
-        return ChangeRef.of(nextRelatedChange);
+    private Set<ChangeRef> getNextRelatedChangeRef() {
+        return ChangeRef.of(nextRelatedChanges);
     }
 
     @Relationship(type = "TIP_OF", direction = OUTGOING)
     @JsonIgnore
     private Reality tipOf;
-
 
     @JsonGetter("tipOf")
     public RealityRef getTipOfRef() {
@@ -137,6 +146,9 @@ public class Change {
         public static final String UPDATE = "UPDATE";
         public static final String DELETE = "DELETE";
 
+        /**
+         * CRUD types for relation changes:
+         */
         public static final String INSERT_REL = "INSERT_REL";
         public static final String UPDATE_REL = "UPDATE_REL";
         public static final String DELETE_REL = "DELETE_REL";

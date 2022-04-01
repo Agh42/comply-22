@@ -152,21 +152,27 @@ public class PerpetualEntityService {
     /**
      * Updates the most current version of the entity in this timeline.
      *
-     * @param timeline the timeline or {@code null} for default timeline
-     * @param label the label of the entity - its type
+     * @param timelineParam the timeline or {@code null} for default timeline
+     * @param labelParam the label of the entity - its type
      * @param entity a reference to the requested entity
-     * @param timestamp the time at which to update the entity or {@code null} for now
+     * @param timestampParam the time at which to update the entity or {@code null} for now
      * @param dtoVersion a new version with values that should be saved
      */
     @Transactional
-    public void updateEntity(@Nullable String timeline,
-                             String label,
+    public void updateEntity(@Nullable String timelineParam,
+                             String labelParam,
                              PerpetualEntityRef entity,
-                             @Nullable Instant timestamp,
+                             @Nullable Instant timestampParam,
                              EntityVersion dtoVersion) {
-        timeline = timeLineOrDefault(timeline);
-        timestamp = requireNonNullElse(timestamp, Instant.now());
-        label = capitalize(label);
+        var timeline = timeLineOrDefault(timelineParam);
+        var timestamp = requireNonNullElse(timestampParam, Instant.now());
+        var label = capitalize(labelParam);
+
+        var previousLatestVersion = versionRepository
+                .findLatestVersion(label, timeline, entity.getId()).orElseThrow(
+                        () -> new IllegalArgumentException(String.format("Entity %s does not have a version that " +
+                                "can be updated in timeline %s", entity.getId(), timeline))
+                );
 
         // FIXME check if timestamp is past previous version's validFom
 
@@ -203,6 +209,15 @@ public class PerpetualEntityService {
                 updatedVersion.getChange().getId());
         log.debug("Moved tip of timeline {} forward to change {}",
                 timeline, updatedVersion.getChange().getId());
+
+        // link previous change on same entity to new change:
+        log.debug("Linking related changes  {} -> {} in timeline {}",
+                previousLatestVersion.getChange(), updatedVersion.getChange().getId(), timeline);
+        previousLatestVersion.getChange().getNextRelatedChanges().add(updatedVersion.getChange());
+        changeRepository.save(previousLatestVersion.getChange());
+        log.debug("Linked related changes  {} -> {} in timeline {}",
+                previousLatestVersion.getChange(), updatedVersion.getChange().getId(), timeline);
+
 
 //        updatedVersion = versionRepository.save(updatedVersion);
 //        log.debug("Saved updatedVersion: {}", updatedVersion);
