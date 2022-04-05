@@ -3,6 +3,7 @@ package io.cstool.comply22.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.cstool.comply22.controller.TimeLineController;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,14 +53,22 @@ public class Change {
 
     /**
      * The time at which a decision was made about a version. This may be the actual time when this change was recorded
-     * in the database. However, it may also be past timestamp specified by the user. This is used to simulate
+     * in the database. However, it may also be past timestamp specified by the user. This facilitates
      * recordings of past events.
+     * <p>
+     * There may be multiple changes with the same timestamp if they are recorded at the same time
+     * (in the same transaction). The order in which they were saved is then still determined by
+     * the {@code nextChange} pointer (see below).
+     * <p>
+     * If two changes belong to different timelines they may also have identical or overlapping
+     * {@code recorded} timestamps.
      * <p>
      * See also:
      * <ul>
      * <li>{@link Change#transactionTime}
      * <li>{@link EntityVersion#getFrom()}
      * <li>{@link EntityVersion#getUntil()}
+     * <li>{@link Change#getNextChange()}
      * </ul>
      *
      */
@@ -98,11 +107,19 @@ public class Change {
     @JsonIgnore
     private Set<Change> nextRelatedChanges = new HashSet<>();
 
+    // TODO replace with set of all next chnges (see relatedChanges)
     @JsonGetter("next")
     private ChangeRef getNextChangeRef() {
         return ChangeRef.of(nextChange);
     }
 
+    /**
+     * All possible next related changes in all timelines.
+     * <p>
+     * To query the next related change in a particular timeline see {@code TimelineController}.
+     *
+     * @see TimeLineController#getNextRelatedChange(Long, String)
+     */
     @JsonGetter("nextRelated")
     private Set<ChangeRef> getNextRelatedChangeRef() {
         return ChangeRef.of(nextRelatedChanges);
@@ -120,9 +137,8 @@ public class Change {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Change))
+        if (!(o instanceof Change other))
             return false;
-        Change other = (Change) o;
         return id != null &&
                 id.equals(other.getId());
     }

@@ -18,6 +18,9 @@ import java.time.Instant;
 
 import static io.cstool.comply22.entity.Reality.timeLineOrDefault;
 
+/**
+ * Allows storing and retrieving entities in different versions in one or multiple alternate realities.
+ */
 @CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @Validated
@@ -125,7 +128,8 @@ public class TimedEntitiesController {
                                     label,
                                     timeLineOrDefault(timeline),
                                     id,
-                                    timestamp));
+                                    timestamp)
+            );
         } else {
             // get latest:
             return new EntityVersionDto(

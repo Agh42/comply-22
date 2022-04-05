@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
+/**
+ * Allows access to the timeline and its changes.
+ */
 @CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
 @Validated
@@ -24,6 +27,22 @@ public class TimeLineController {
     @GetMapping("/{id}")
     public Change getChange(@PathVariable @NotNull Long id){
         return timelineService.findById(id);
+    }
+
+    @GetMapping("/{id}/nextRelated")
+    public Change getNextRelatedChange(@PathVariable @NotNull Long id,
+                                       @RequestParam(value="timeline", required = false)
+                                               String timeline){
+        // TODO retreive next related change in timeline (or default timeline)
+        return null;
+    }
+
+    @GetMapping("/{id}/next")
+    public Change getNextChange(@PathVariable @NotNull Long id,
+                                       @RequestParam(value="timeline", required = false)
+                                               String timeline){
+        // TODO retreive next change in timeline (or default timeline)
+        return null;
     }
 
     @GetMapping("/first")

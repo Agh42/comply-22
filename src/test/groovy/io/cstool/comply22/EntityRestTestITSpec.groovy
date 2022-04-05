@@ -160,13 +160,14 @@ class EntityRestTestITSpec extends Specification {
         def afterUpdate = now()
 
         and: "a timestamp is used to get the current version"
-        json = restTemplate.getForObject("/api/v1/entities/mytype/$response.entity.id?timestamp=" + now().toString(),
-                JsonNode)
-        def updatedResponse = jsonSlurper.parseText(json.toString())
+        def updatedResponse = jsonSlurper.parseText(
+                restTemplate.getForObject(
+                        "/api/v1/entities/mytype/$response.entity.id?timestamp=" + now().toString(),
+                        JsonNode).toString())
 
         then: "the current version is retrieved"
         updatedResponse.entity.id != null
-        updatedResponse.version != null // FIXME xxx no version is retreived, check query
+        updatedResponse.version != null
 
         with(updatedResponse.version) {
             name == "Name1"
@@ -411,6 +412,16 @@ class EntityRestTestITSpec extends Specification {
     }
 
     @Ignore
+    def "Select next change from change in specific timeline"() {
+
+    }
+
+    @Ignore
+    def "Select next related change from change in specific timeline"() {
+
+    }
+
+    @Ignore
     def "remove an entity"() {
         // sets "until" on last version to now
         // sets "until" on all incoming relations to now
@@ -447,17 +458,10 @@ class EntityRestTestITSpec extends Specification {
     def "Create alternate reality from point in time"() {}
 
     @Ignore
-    def "Create alternate reality from alternate reality"() {}
-
-    @Ignore
     def "Updating a past version creates a new timeline"() {}
 
     @Ignore
-    def "Cannot specify past time for mainstream reality"() {}
-
-    @Ignore
     def "Delete alternate reality"() {}
-
 
     private Object newEntity(String label, String name) {
         def anchor = PerpetualEntity.newInstance()
@@ -472,7 +476,6 @@ class EntityRestTestITSpec extends Specification {
                 ),
                 now()
         )
-        // FIXME json parse error: null createentitydto["version"]
         HttpEntity<CreateEntityDto> request = new HttpEntity<>(new CreateEntityDto(version))
         def json = restTemplate.postForObject("/api/v1/entities/${label}",
                 request,
@@ -482,6 +485,6 @@ class EntityRestTestITSpec extends Specification {
     }
 
 //    def cleanup() {
-//        restTemplate.delete("/api/v1/entities/control")
+//        restTemplate.delete("/api/v1/entities/mytype")
 //    }
 }

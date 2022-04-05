@@ -8,22 +8,9 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Optional;
-
 @Transactional(readOnly = true)
 public interface PerpetualEntityRepository extends Neo4jRepository<PerpetualEntity, Long>,
     NonDomainResults {
-
-
-    @Query("MATCH (a:Entity) <-[r:VERSION_OF]- (v:Version) " +
-            "WHERE id(a) = $id " +
-            "AND $label IN labels(a)  " +
-            "AND ( v.from < $time) AND ($time < v.until OR NOT EXISTS(v.until) ) " +
-            "WITH a,v,r " +
-            "RETURN a, collect(r), collect(v)"
-    )
-    Optional<PerpetualEntity> findVersionAt(String label, Long id, Instant time);
 
     /**
      * Find all entities of the given type for the present time. Deleted entities will not be included in
