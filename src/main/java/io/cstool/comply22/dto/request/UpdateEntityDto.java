@@ -19,6 +19,7 @@ import lombok.Data;
  * The changes are not overwritten, but they won't be merged and you may not be
  * aware of changes that were made.
  */
+ // TODO Make optimisticLocking configurable using query parameter ?oplock=true
 @Data
 @AllArgsConstructor
 public class UpdateEntityDto {
