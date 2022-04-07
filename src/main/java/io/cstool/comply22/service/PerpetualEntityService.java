@@ -134,10 +134,12 @@ public class PerpetualEntityService {
      */
     public EntityVersion find(String label, String timeline, Long perpetualId, Instant timestamp) {
         label = capitalize(label);
-        return versionRepository.findVersionAt(label, perpetualId, timeline, timestamp)
-                .orElseThrow(() -> new VersionNotFoundException(
-                        "No version was found for entity %s in timeline %s " +
-                        "at specified timestamp %s", perpetualId, timeline, timestamp));
+        return versionRepository.findCurrentVersionAt(label, perpetualId, timeline, timestamp)
+                .orElse(versionRepository.findPreviousVersionAt(label, perpetualId, timeline, timestamp)
+                        .orElseThrow(() -> new VersionNotFoundException(
+                                "No version was found for entity %s in timeline %s " +
+                                        "at specified timestamp %s", perpetualId, timeline, timestamp))
+                );
     }
 
     public Slice<PerpetualEntity> findAllCurrent(String label, Pageable pageable) {
