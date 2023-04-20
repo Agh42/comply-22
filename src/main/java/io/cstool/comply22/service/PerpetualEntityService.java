@@ -133,7 +133,7 @@ public class PerpetualEntityService {
      * Find version at specific timestamp
      */
     public EntityVersion find(String label, String timeline, Long perpetualId, Instant timestamp) {
-        label = capitalize(label);
+        label = capitalize(label); // FIXME fix norootnodemappingexpection when running test "get current version"
         return versionRepository.findCurrentVersionAt(label, perpetualId, timeline, timestamp)
                 .orElse(versionRepository.findPreviousVersionAt(label, perpetualId, timeline, timestamp)
                         .orElseThrow(() -> new VersionNotFoundException(
@@ -141,6 +141,7 @@ public class PerpetualEntityService {
                                         "at specified timestamp %s", perpetualId, timeline, timestamp))
                 );
     }
+    // TODO xxx run test to see if this works for timestamp at tip and between updated changes
 
     public Slice<PerpetualEntity> findAllCurrent(String label, Pageable pageable) {
         label = capitalize(label);

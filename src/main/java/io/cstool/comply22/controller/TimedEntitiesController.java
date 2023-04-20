@@ -70,7 +70,7 @@ public class TimedEntitiesController {
                                             Integer page,
                                     @RequestParam(required = false, defaultValue = "name")
                                     @Size(max = 1024)
-                                            String sortBy,
+                                            String sortBy, // TODO implement sort criteria
                                     @RequestParam(required = false, defaultValue = "asc")
                                     @Pattern(regexp = "(^$|asc|desc|ASC|DESC)")
                                             String sortOrder) {
